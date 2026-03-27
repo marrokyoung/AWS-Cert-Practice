@@ -307,6 +307,159 @@ Initial algorithm:
 - due items appear in a review queue with badge count
 - daily review should feel like a study deck, not just a list of missed questions
 
+## Visual Design Direction
+
+### Design Goal
+
+The app should feel sleek, technical, and study-focused without looking like a generic SaaS dashboard or an AI-generated template. The visual style should take cues from:
+
+- technical field guides
+- architecture diagrams
+- calm workspace tools
+- study cards and annotated notebooks
+
+The design should feel credible for certification prep, but still have a distinct identity.
+
+### Visual Personality
+
+- clean, not sterile
+- modern, not glossy
+- technical, not intimidating
+- warm and focused, not cold enterprise blue
+
+### Design Principles
+
+- prioritize reading comfort over decorative effects
+- keep the main study action obvious at all times
+- use strong hierarchy so progress, question state, and review status are easy to scan
+- avoid generic dashboard clutter and oversized hero sections
+- use a few distinctive visual motifs consistently instead of many competing effects
+
+### Recommended Palette
+
+Move away from purple for this product. Use a warm-neutral base with restrained teal and rust accents.
+
+| Token | Role | Suggested Color |
+| --- | --- | --- |
+| `bg.canvas` | main app background | `#F3EFE7` |
+| `bg.surface` | cards and panels | `#FFFCF6` |
+| `bg.muted` | secondary sections | `#E7E0D4` |
+| `fg.primary` | primary text | `#16202A` |
+| `fg.secondary` | supporting text | `#5C6870` |
+| `accent.primary` | links, active states, progress accents | `#0F766E` |
+| `accent.secondary` | CTA and highlighted actions | `#C56B2D` |
+| `state.success` | correct answers | `#1F8A5B` |
+| `state.warning` | flagged / caution | `#B7791F` |
+| `state.error` | incorrect answers | `#C2412D` |
+| `border.default` | default border | `#D8D0C2` |
+
+Palette guidance:
+
+- use teal as the primary product accent
+- use rust/amber sparingly for high-emphasis actions
+- keep large surfaces light and warm rather than pure white
+- avoid purple gradients, neon highlights, and black-glass styling
+
+### Typography
+
+Use typography that feels deliberate and technical without becoming harsh.
+
+- heading font: `Space Grotesk`
+- body font: `IBM Plex Sans`
+- mono/timer/stat font: `IBM Plex Mono`
+
+Typography rules:
+
+- large, confident page titles
+- compact and readable body copy
+- monospace only for timers, score readouts, shortcut hints, and small metadata
+- avoid oversized marketing-style type treatments in study flows
+
+### Surfaces And Shapes
+
+- cards should feel like study objects, not generic panels
+- use medium-to-large radii, around `20-24px`, for primary cards
+- pair soft shadows with visible borders rather than relying on shadow alone
+- use layered surfaces for focus states, explanations, and review reveals
+- introduce subtle background texture or diagram-grid treatment at low contrast
+
+### Layout Strategy
+
+Home page:
+
+- strong header with certification switcher and immediate review count
+- three prominent mode cards with distinct descriptions and visual identity
+- progress and due-review summary below the fold
+
+Study pages:
+
+- center the primary card in a focused reading column
+- keep supporting metadata visible but secondary
+- use a sticky header for session progress and actions
+- keep answer actions anchored consistently to reduce visual jumping
+
+Desktop behavior:
+
+- top navigation plus a content frame that feels like a study workspace
+- optional right-side context area for domain, progress, timer, or source links
+
+Mobile behavior:
+
+- prioritize one-handed tap targets
+- keep the question/review card dominant
+- use sticky bottom actions when needed for reveal, submit, and next
+
+### Signature Visual Motifs
+
+To avoid a generic look, use a small number of recurring motifs:
+
+- subtle grid or blueprint-line backgrounds
+- domain badges that resemble tab markers or section labels
+- progress indicators that feel like study-track markers rather than analytics charts
+- citation/source links styled like referenced notes, not ordinary footer links
+
+### Motion
+
+Animation should support study flow, not distract from it.
+
+- gentle page-load and section-reveal motion
+- card flip or reveal transitions for concept/review cards
+- confident state changes for correct/incorrect feedback
+- restrained progress animations
+- no floating blobs, parallax gimmicks, or continuous decorative motion
+
+### Component Style Notes
+
+Mode cards:
+
+- large, asymmetrical but disciplined composition
+- brief descriptive copy and one strong action
+- subtle iconography or diagram shapes tied to each mode
+
+Question cards:
+
+- high legibility first
+- answer options should feel tactile and clearly selectable
+- correctness state should be obvious without overwhelming the explanation
+
+Review cards:
+
+- front and back states should feel intentionally different
+- recall-strength actions should read as part of the study system, not generic buttons
+
+Progress and stats:
+
+- prefer compact indicators, ring meters, bars, and tagged summaries
+- avoid dashboard-heavy chart walls in v1
+
+### Accessibility And Readability
+
+- maintain strong text contrast on all warm-neutral backgrounds
+- never rely on color alone for correctness or review status
+- ensure keyboard-friendly flows for review sessions
+- support reduced motion preferences
+- keep reading width tight enough for dense explanations
+
 ## Navigation And Layout
 
 ### Primary Navigation
@@ -321,8 +474,9 @@ Initial algorithm:
 ### Home Page
 
 - certification selector
-- three mode cards: Learn, Practice, Exam
-- review summary and due count
+- prominent review summary and due count near the top
+- three visually distinct mode cards: Learn, Practice, Exam
+- recent progress and weak-area summary below
 
 ### Question Card Behavior
 
@@ -352,6 +506,13 @@ Review sessions should show:
 - back/explanation state
 - recall-strength buttons
 - next due item action
+
+### Design System Notes
+
+- define colors as CSS variables in `globals.css`
+- define spacing, radius, border, and shadow tokens early
+- use a small, repeatable set of card shells instead of many one-off layouts
+- keep component primitives accessible and themeable from the beginning
 
 ## Content Pipeline
 
@@ -448,6 +609,8 @@ aws-cert-practice/
 
 - initialize Next.js + TypeScript + Tailwind + shadcn/ui + pnpm
 - define core TypeScript types
+- define visual design tokens and base typography
+- build the initial app shell and navigation frame
 - implement question loader for repo content
 - build initial question card component
 - seed `10-15` questions per cert for testing
