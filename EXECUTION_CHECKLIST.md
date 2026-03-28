@@ -50,16 +50,16 @@ Recommended naming pattern:
 
 ### 1. Repo And Dependency Baseline
 
-- [ ] Remove or replace remaining default Next.js scaffold content that is no longer useful.
-- [ ] Ensure local tooling exists for:
+- [x] Remove or replace remaining default Next.js scaffold content that is no longer useful.
+- [x] Ensure local tooling exists for:
   - `pnpm`
   - Rust / `cargo`
   - Terraform
-- [ ] Add the first required app dependencies:
+- [x] Add the first required app dependencies:
   - `zustand`
   - `zod`
   - `shadcn`/ui dependencies as needed
-- [ ] Add any required scripts to `package.json`:
+- [x] Add any required scripts to `package.json`:
   - `content:build`
   - `lint`
   - `build`
