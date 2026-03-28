@@ -101,7 +101,7 @@ Existing open-source options are generally static notes, abandoned apps, or coll
 - source content lives in the repo under `content/`
 - CI and local scripts validate all source files before they are used by the app
 - a build step compiles content into a generated catalog that is safe to import in the web app
-- Next.js Server Components and route handlers read from the generated catalog, not from raw browser-side filesystem access
+- app pages import from the generated catalog at build time, not from raw browser-side filesystem access
 - Client Components receive only the content slices they need for the active screen or session
 - offline support should cache the app shell and the content already accessed by the user, with room to add per-cert download packs later
 
@@ -644,10 +644,12 @@ aws-cert-practice/
       Cargo.toml
       src/
         main.rs
+        config/
         handlers/
+        services/
+        repositories/
         models/
         errors/
-        auth/
   src/
     app/
       page.tsx
@@ -658,16 +660,21 @@ aws-cert-practice/
       review/page.tsx
       progress/page.tsx
     components/
-      study-card-shell.tsx
-      question-card.tsx
-      flashcard.tsx
-      question-retry-card.tsx
-      timer.tsx
-      progress-bar.tsx
-      domain-selector.tsx
-      confidence-picker.tsx
-      results-summary.tsx
-      review-badge.tsx
+      ui/
+        button.tsx
+        timer.tsx
+        progress-bar.tsx
+      study/
+        study-card-shell.tsx
+        question-card.tsx
+        flashcard.tsx
+        question-retry-card.tsx
+        domain-selector.tsx
+        confidence-picker.tsx
+        results-summary.tsx
+        review-badge.tsx
+    contracts/
+      api.ts
     features/
       api/
         client.ts
@@ -678,7 +685,7 @@ aws-cert-practice/
         flashcard-scheduler.ts
         question-retry.ts
         review-selectors.ts
-      session/
+      identity/
         guest-session.ts
       sessions/
         learn-session.ts
@@ -698,7 +705,12 @@ aws-cert-practice/
   infra/
     terraform/
       modules/
+        frontend-static-site/
+        api/
+        data/
+        monitoring/
       environments/
+        dev/
   content/
     CLF-C02/
     SAA-C03/
