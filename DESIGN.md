@@ -3,7 +3,7 @@
 ## Status
 
 - Version: v1
-- Date: 2026-03-26
+- Date Last Updated: 2026-03-27
 - Scope: Initial product and implementation plan
 
 ## Overview
@@ -15,7 +15,7 @@ AWS Cert Practice App is an open-source study platform for AWS certification pre
 
 The product goal is to offer a free, transparent, community-driven alternative to paid certification platforms, while staying clearly separate from exam-dump territory. All learning content should be based on public AWS documentation and original explanations.
 
-V1 should be treated as a browser-first web app, with PWA/offline support as a product goal. That makes local browser storage the default persistence model for user progress and review data.
+V1 should be treated as a browser-first web app, with PWA/offline support as a product goal. The frontend should stay statically deployable, while durable application data is designed around AWS-backed services. Any browser-side persistence should stay minimal and should not be treated as the primary source of truth.
 
 ## Problem Statement
 
@@ -46,10 +46,14 @@ Existing open-source options are generally static notes, abandoned apps, or coll
 - Support for every AWS certification
 - Rich instructor/course content
 - Native mobile apps
+- Multi-user local profile switching on a shared machine
 
 ## Core Principles
 
 - Local-first by default
+- Persistence should sit behind abstractions so storage can evolve without rewriting study flows
+- Keep the frontend static-hostable and keep the backend minimal and serverless
+- Prefer core AWS primitives over higher-level platform abstractions
 - OSS-friendly content pipeline
 - Clear citations to official AWS documentation
 - Immediate explanations, not just scoring
@@ -63,31 +67,77 @@ Existing open-source options are generally static notes, abandoned apps, or coll
 | --- | --- | --- |
 | Framework | Next.js 14+ (App Router) | Familiar stack, routing, SSR/SSG support, API routes available |
 | Language | TypeScript | Strong schemas and safer content loading |
+| Backend language | Rust | Strong fit for a small serverless API on AWS Lambda |
 | Styling | Tailwind CSS + shadcn/ui | Fast UI delivery with accessible primitives |
-| Local persistence | IndexedDB via a thin storage wrapper | Best fit for a browser-based local-first app |
-| Server sync | None in v1 | Avoid infra coupling until sync is justified |
-| Auth | None in v1; optional later | Local-first usage should not require an account |
+| Client session persistence | Minimal browser-side session storage | Supports guest continuity without making browser storage the primary data model |
+| API layer | API Gateway + Rust Lambda | Minimal serverless backend foundation that can grow over time |
+| Cloud data store | DynamoDB | Cheap serverless store for guest and future authenticated progress/review data |
+| Auth | Cognito later | Planned future auth path for Google and Apple login |
 | Client state | Zustand | Lightweight session state management |
-| Content format | Markdown + JSON in repo | Easy PR review and versioning |
-| Deployment | Vercel | Low-friction OSS deployment |
+| Content format | Markdown + JSON source files in repo, compiled into a generated content catalog | Easy PR review with a browser-safe loading path |
+| Frontend deployment | S3 + CloudFront | Static frontend hosting on core AWS services |
+| Infrastructure as code | Terraform | Reproducible AWS setup with explicit safeguards and deployment control |
 | Package manager | pnpm | Fast and common for modern TS apps |
 
-### Why Browser-Local IndexedDB
+### Client Session Persistence In v1
 
-- it is the most practical local persistence option for a browser-first app
-- it supports offline-friendly study flows without requiring a server database
-- it keeps review history, session data, and progress on the user's machine by default
-- it avoids shipping desktop-specific persistence complexity before it is needed
-- it still allows an optional hosted sync layer later
+- browser-side persistence should be limited to minimal guest-session continuity, UI preferences, and temporary cache
+- durable study data should be modeled so it can live in DynamoDB-backed services rather than being anchored to browser storage
+- offline or cached behavior can still exist, but it should be treated as a convenience layer, not the system of record
+- clearing browser data may still break guest continuity before Cognito or account recovery exists
 
-### What Is Stored Locally In v1
+### V1 User Model
 
-- review queue and spaced-repetition state
-- question history and results
-- confidence ratings
-- flagged or saved items
-- progress summaries
-- local settings and preferences
+- users can open the app directly in the browser without creating an account
+- supported browsers may also allow the app to be installed as a PWA on desktop or mobile
+- first use may create an anonymous guest session through the backend
+- the client may retain a guest session identifier locally for continuity between visits
+- v1 does not require login for core study flows
+- guest users should still be able to study even if authenticated cloud persistence is not available yet
+- future login should use Cognito with social sign-in providers such as Google and Apple
+
+### Content Loading Strategy
+
+- source content lives in the repo under `content/`
+- CI and local scripts validate all source files before they are used by the app
+- a build step compiles content into a generated catalog that is safe to import in the web app
+- Next.js Server Components and route handlers read from the generated catalog, not from raw browser-side filesystem access
+- Client Components receive only the content slices they need for the active screen or session
+- offline support should cache the app shell and the content already accessed by the user, with room to add per-cert download packs later
+
+### Data Versioning And Integrity
+
+- generated content should carry a `contentVersion` value so guest or authenticated progress can be reconciled against updated source material
+- question IDs and concept-card IDs must stay stable across content edits whenever possible
+- if content is removed or renamed, affected review records should be cleaned up, migrated, or marked inactive
+- API payloads and DynamoDB items should use versioned schemas where appropriate
+
+### Backend Foundation In v1
+
+- the AWS backend should be provisioned in v1 even though login and authenticated sync are deferred
+- API Gateway and Rust Lambda establish the long-term backend boundary early
+- DynamoDB tables should be created in v1 so the data model can be shaped before user-facing auth arrives
+- v1 backend endpoints can stay minimal, such as health, version, configuration, guest-session bootstrap, and future-ready write boundaries
+- guest study flows must not break if the backend is unavailable
+
+### Frontend Deployment Posture
+
+- the frontend should remain deployable as a static web app on S3 + CloudFront
+- the presence of a backend does not change the static deployment posture of the frontend
+- client-side session persistence is only a thin continuity layer, not the domain model itself
+- login, cloud sync, and AI-assisted review features should layer on top of the existing domain model later rather than forcing a rewrite of Learn, Practice, Exam, or Review flows
+
+### Security And Cost Controls
+
+- keep the S3 bucket private and serve assets through CloudFront with OAC
+- use least-privilege IAM for Lambda, API Gateway, Terraform, and deployment roles
+- enable API Gateway throttling and sane burst limits on public endpoints
+- use AWS WAF rate-based rules to reduce abuse and request flooding
+- set Lambda reserved concurrency to cap runaway execution cost
+- use DynamoDB in a mode appropriate for expected traffic and pair it with CloudWatch alarms
+- enable AWS Budgets and billing alarms early
+- log structured request and error metadata to CloudWatch
+- validate request payloads and return predictable error responses
 
 ## Functional Scope
 
@@ -103,7 +153,7 @@ Existing open-source options are generally static notes, abandoned apps, or coll
 3. Exam Mode
 4. Smart Review Layer
 
-The Smart Review Layer is not a standalone mode. It sits underneath the other study experiences and resurfaces weak or overdue items. It should feel clearly inspired by flashcard apps like Anki, without trying to reproduce Anki exactly.
+The Smart Review Layer is not a standalone mode. It sits underneath the other study experiences and resurfaces weak or overdue items. It should feel clearly inspired by flashcard apps like Anki, without trying to reproduce Anki exactly. In v1, the Review page should present two distinct systems: Flashcard Review and Question Retry.
 
 ## Content Model
 
@@ -148,14 +198,11 @@ interface ConceptCard {
 }
 ```
 
-### Review Item Schema
+### Flashcard Review Schema
 
 ```ts
-type ReviewableItemType = "concept-card" | "question";
-
-interface ReviewItem {
-  itemId: string;
-  itemType: ReviewableItemType;
+interface FlashcardReviewItem {
+  cardId: string;
   cert: "CLF-C02" | "SAA-C03";
   domain: string;
   state: "new" | "learning" | "review" | "lapsed";
@@ -165,15 +212,32 @@ interface ReviewItem {
   repetitions: number;
   lapseCount: number;
   lastReviewedAt?: string;
-  lastResult?: "forgot" | "hard" | "good" | "easy";
-  lastConfidence?: "low" | "medium" | "high";
+  lastRating?: "forgot" | "hard" | "good" | "easy";
 }
 ```
 
-Review items should support both:
+### Question Retry Schema
 
-- concept cards introduced in Learn Mode
-- questions that were missed, marked low-confidence, or manually saved for review
+```ts
+interface QuestionRetryItem {
+  questionId: string;
+  cert: "CLF-C02" | "SAA-C03";
+  domain: string;
+  status: "queued" | "due" | "cleared";
+  intervalDays: number;
+  dueAt: string;
+  retryCount: number;
+  lastAttemptResult?: "correct" | "incorrect";
+  lastConfidence?: "low" | "medium" | "high";
+  lastReviewedAt?: string;
+}
+```
+
+Review persistence should stay simple in v1:
+
+- flashcards and question retries should be stored separately
+- flashcards use spaced-repetition states and recall ratings
+- question retries use re-attempt history and simpler due scheduling
 
 ### Content Directory Structure
 
@@ -223,9 +287,10 @@ Flow:
 - choose domain
 - choose topic
 - work through concept cards
+- keep each concept card atomic and short enough to work as a reviewable flashcard later
 - reveal the back of each card after attempting recall
 - rate recall strength after reveal
-- add concept cards to the spaced-review system when first encountered
+- add concept cards to the Flashcard Review system when first encountered
 - see light practice inserted after every 3 to 5 cards
 - receive explanation after each question
 - track progress through the topic
@@ -248,7 +313,7 @@ Flow:
 - receive immediate correctness feedback
 - read full explanation and distractor breakdown
 - record confidence (`low`, `medium`, `high`)
-- add missed or low-confidence questions to the review queue
+- add missed or low-confidence questions to the Question Retry queue
 - review end-of-set summary and missed items
 
 ### Exam Mode
@@ -268,19 +333,17 @@ Flow:
 - receive mixed questions weighted by exam domains
 - flag questions during the session
 - submit manually or auto-submit at time expiry
-- feed missed or weak-confidence results into the review queue after scoring
+- feed missed or weak-confidence results into the Question Retry queue after scoring
 - review score, domain breakdown, and per-question results
 
 ### Smart Review Layer
 
-Purpose: resurface weak material across all modes with a flashcard-style spaced-review experience.
+Purpose: resurface weak material across all modes while keeping flashcard review and full-question retry logically separate.
 
-Reviewable items:
+Review systems:
 
-- concept cards from Learn Mode
-- missed questions from Practice or Exam Mode
-- low-confidence questions
-- manually saved questions
+- Flashcard Review: concept cards only, spaced repetition, front/back recall flow
+- Question Retry: missed or weak-confidence full questions, re-attempt flow, simpler due scheduling
 
 Tracks:
 
@@ -289,23 +352,40 @@ Tracks:
 - weak domains and topics
 - time since last review
 
-Review session flow:
+Flashcard Review flow:
 
-- show the front of a concept card or the prompt for a saved question
+- show the front of a concept card
 - let the user attempt recall before seeing the answer
-- reveal the explanation or back of card
+- reveal the back of card
 - let the user rate recall strength
 - schedule the next appearance based on that rating
 
-Initial algorithm:
+Question Retry flow:
+
+- show the full missed or saved question again
+- let the user answer it normally
+- show explanation and confidence feedback
+- schedule another retry if the question is still weak
+
+Flashcard Review algorithm:
 
 - simplified spaced-repetition scheduling inspired by Anki
 - not an exact clone of Anki's algorithm or UI
 - items move through `new`, `learning`, `review`, and `lapsed` states
 - stronger recall increases the next interval
 - forgotten items return quickly
-- due items appear in a review queue with badge count
-- daily review should feel like a study deck, not just a list of missed questions
+
+Question Retry algorithm:
+
+- use simpler retry intervals than flashcards
+- prioritize recent misses and repeated weak-confidence answers
+- clear questions from the retry queue when they are answered confidently and correctly
+
+Review page behavior:
+
+- if flashcards or retries are due, Review becomes the primary return path for active users
+- if no review is due, the app should point the user back to Learn or Practice
+- daily review should feel like a focused study deck, not a generic dashboard
 
 ## Visual Design Direction
 
@@ -473,10 +553,11 @@ Progress and stats:
 
 ### Home Page
 
-- certification selector
-- prominent review summary and due count near the top
-- three visually distinct mode cards: Learn, Practice, Exam
-- recent progress and weak-area summary below
+- first-time users should see certification selection and a clear `Start Learning` primary action
+- returning users with due items should see `Review Due Items` as the primary action
+- returning users with an unfinished session but no due review should see `Resume Session`
+- Learn, Practice, and Exam remain visible as secondary mode choices
+- recent progress and weak-area summary appear below the primary CTA area
 
 ### Question Card Behavior
 
@@ -501,10 +582,11 @@ Post-answer state should show:
 
 Review sessions should show:
 
-- front/prompt first
-- reveal action
-- back/explanation state
-- recall-strength buttons
+- a clear split between Flashcard Review and Question Retry
+- front/reveal/back flow for flashcards
+- full re-attempt flow for question retries
+- recall-strength actions only for flashcards
+- confidence and correctness feedback for question retries
 - next due item action
 
 ### Design System Notes
@@ -557,6 +639,15 @@ To avoid drifting into exam-dump territory:
 
 ```text
 aws-cert-practice/
+  backend/
+    rust-api/
+      Cargo.toml
+      src/
+        main.rs
+        handlers/
+        models/
+        errors/
+        auth/
   src/
     app/
       page.tsx
@@ -567,29 +658,52 @@ aws-cert-practice/
       review/page.tsx
       progress/page.tsx
     components/
+      study-card-shell.tsx
       question-card.tsx
-      concept-card.tsx
+      flashcard.tsx
+      question-retry-card.tsx
       timer.tsx
       progress-bar.tsx
       domain-selector.tsx
       confidence-picker.tsx
       results-summary.tsx
       review-badge.tsx
-    lib/
-      spaced-repetition.ts
-      question-loader.ts
-      progress-tracker.ts
-      exam-generator.ts
-      storage.ts
+    features/
+      api/
+        client.ts
+      content/
+        catalog.ts
+        question-loader.ts
+      review/
+        flashcard-scheduler.ts
+        question-retry.ts
+        review-selectors.ts
+      session/
+        guest-session.ts
+      sessions/
+        learn-session.ts
+        practice-session.ts
+        exam-session.ts
+      progress/
+        progress-tracker.ts
+      exams/
+        exam-generator.ts
+    generated/
+      content-catalog.ts
     types/
       question.ts
       concept.ts
       review.ts
       progress.ts
+  infra/
+    terraform/
+      modules/
+      environments/
   content/
     CLF-C02/
     SAA-C03/
   scripts/
+    build-content.ts
     validate-questions.ts
     generate-stats.ts
   .github/
@@ -608,11 +722,18 @@ aws-cert-practice/
 ### Sprint 1: Foundation
 
 - initialize Next.js + TypeScript + Tailwind + shadcn/ui + pnpm
+- define the guest-first v1 user model and first-run behavior
 - define core TypeScript types
+- define guest-session handling and backend contract boundaries
 - define visual design tokens and base typography
 - build the initial app shell and navigation frame
-- implement question loader for repo content
+- implement the content build pipeline and generated catalog
+- implement question loader against generated content data
+- build the shared study card shell
 - build initial question card component
+- bootstrap the Rust Lambda project structure
+- define the initial API boundary and request/response contracts
+- create the Terraform skeleton for frontend, API, and data resources
 - seed `10-15` questions per cert for testing
 
 ### Sprint 2: Practice Mode
@@ -621,17 +742,18 @@ aws-cert-practice/
 - practice session flow
 - answer feedback state
 - confidence picker
-- enqueue missed or low-confidence questions for later review
+- enqueue missed or low-confidence questions for Question Retry
 - results summary
 - local session history
 
 ### Sprint 3: Learn Mode
 
-- concept card component
+- flashcard component
 - front/back reveal flow
 - recall-strength rating after reveal
 - topic progression flow
 - inline practice insertion
+- add atomic concept cards into Flashcard Review
 - topic progress tracking
 
 ### Sprint 4: Exam Mode
@@ -643,12 +765,14 @@ aws-cert-practice/
 
 ### Sprint 5: Smart Review + Polish
 
-- spaced repetition engine
-- review queue UI
-- concept-card and question review support
-- due-item review session flow
+- Flashcard Review scheduler
+- Question Retry scheduler
+- Review page UI with separate flashcard and question-retry sections
+- due-item review session flows
+- primary CTA logic for first-run, due review, and resume-session states
 - progress dashboard
 - PWA support
+- security hardening pass for API throttling, WAF, and alarms
 - dark mode
 
 ### Sprint 6: Community Pipeline
@@ -662,8 +786,11 @@ aws-cert-practice/
 
 ### Unit Tests
 
-- spaced repetition algorithm
+- flashcard spaced-repetition algorithm
+- question-retry scheduling rules
 - review state transitions (`new`, `learning`, `review`, `lapsed`)
+- storage migrations
+- generated content catalog build step
 - question loader
 - exam generator domain weighting
 
@@ -676,10 +803,11 @@ aws-cert-practice/
 
 ### End-To-End Tests
 
-- select cert
-- complete a Learn Mode topic
-- add due review items
-- complete a review session
+- first-time user chooses a cert and starts Learn Mode
+- complete a Learn Mode topic and create flashcard review items
+- miss questions in Practice Mode and create question-retry items
+- return as a user with due review and enter Review from the home page
+- complete both a flashcard review session and a question-retry session
 
 ### Content Validation
 
@@ -697,10 +825,11 @@ aws-cert-practice/
 ## Key Risks And Open Questions
 
 - How much of v1 should work fully offline versus "offline after first visit"?
-- Should v1 include export/import of local progress to reduce the risk of browser data loss?
-- Should Learn Mode concept cards also live as structured JSON/MDX instead of plain markdown files?
-- How should the review queue balance concept-card review versus missed-question review when both are due?
-- When sync becomes real, what backend should own it and how should local-first conflict resolution work?
+- How should guest-session continuity behave before Cognito-backed persistence exists?
+- Should concept-card source files stay markdown-based with strict structure, or move to a more explicitly structured format?
+- Should the app eventually support downloadable per-cert offline packs, or only cache content after first use?
+- When Cognito is introduced, how should guest progress merge into authenticated cloud progress?
+- Which public endpoints should exist before login is added, and which should stay disabled until auth exists?
 - What is the minimum launch question count that still feels credible to users?
 - How strict should certification-domain weighting be when question banks are still small?
 
@@ -712,6 +841,7 @@ Turn Sprint 1 into an execution checklist with:
 - file and folder creation order
 - initial type definitions
 - client storage abstraction for local progress data
-- initial review schema and scheduler boundaries
+- initial content build pipeline
+- initial Flashcard Review and Question Retry boundaries
 - question/content seeding checklist
 - acceptance criteria for the first implementable milestone
