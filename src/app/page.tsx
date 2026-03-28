@@ -1,7 +1,8 @@
 export default function Home() {
   return (
     <main>
-      <div>Hello world!</div>
+      <h1>AWS Cert Practice</h1>
+      <p>App shell coming soon.</p>
     </main>
   );
 }
