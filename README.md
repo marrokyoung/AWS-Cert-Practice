@@ -1,42 +1,34 @@
-# AWS-Cert-Practice
+# AWS Cert Practice
 
-Open-source AWS certification practice app with guided learning, practice quizzes, exam simulations, and spaced review.
+I'm building this as an open-source AWS certification study app with guided learning, practice questions, exam simulations, and spaced review. It's free, transparent, and community-improvable -- because good certification prep should not require a subscription.
 
-Initial certification targets:
+## Why This Exists
 
-- AWS Certified Cloud Practitioner (`CLF-C02`)
-- AWS Certified Solutions Architect - Associate (`SAA-C03`)
+There is no polished open-source AWS certification practice app. Most existing options are static notes, abandoned projects, or paid closed-source platforms. This project aims to fill that gap with a free, transparent tool that anyone can use, improve, and contribute to.
 
-## Prerequisites
+## Current Scope
 
-| Tool | Minimum Version | Needed For |
-|------|----------------|------------|
-| Node.js | 20+ | Next.js, build tooling |
-| pnpm | 9+ | Package management |
-| Rust / cargo | latest stable | Backend Lambda (Sprint 1 Step 5+) |
-| Terraform | 1.6+ | AWS infrastructure (Sprint 1 Step 6+) |
+- **Certifications:** CLF-C02, SAA-C03
+- **Modes:** guided learning, focused practice, timed exam simulations
+- **Review:** spaced-repetition flashcards and question retry for weak areas
 
-## Local Setup
+## Project Status
 
-Install dependencies:
+Early development. Architecture and foundations are in progress.
 
-```bash
-pnpm install
-```
+## Development
 
-Start the development server:
+- [CONTRIBUTING.md](./CONTRIBUTING.md) -- local setup and contributor workflow
+- [DESIGN.md](./DESIGN.md) -- architecture and scope
+- [EXECUTION_CHECKLIST.md](./EXECUTION_CHECKLIST.md) -- current implementation order
 
-```bash
-pnpm dev
-```
+## Principles
 
-Open `http://localhost:3000` in your browser.
+- All content is based on public AWS documentation
+- This is not an exam dump -- no copied or leaked exam questions
+- Explanations and citations matter for every question
+- Open contribution model with quality review
 
-## Project Docs
+## License
 
-- Design doc: [DESIGN.md](./DESIGN.md)
-
-## Notes
-
-- The app is a browser-first web app with a serverless AWS backend (Lambda + DynamoDB).
-- User progress and review data are persisted via the backend; browser storage is non-authoritative.
+See [LICENSE](./LICENSE) for details.
