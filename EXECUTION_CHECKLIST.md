@@ -68,27 +68,27 @@ Recommended naming pattern:
 
 ### 2. Route, Type, And Contract Foundation
 
-- [ ] Create route structure with placeholder `page.tsx` files:
+- [x] Create route structure with placeholder `page.tsx` files:
   - `src/app/[cert]/learn/page.tsx`
   - `src/app/[cert]/practice/page.tsx`
   - `src/app/[cert]/exam/page.tsx`
   - `src/app/review/page.tsx`
   - `src/app/progress/page.tsx`
-- [ ] Add `src/types/question.ts`
-- [ ] Add `src/types/concept.ts`
-- [ ] Add `src/types/review.ts`
-- [ ] Add `src/types/progress.ts`
-- [ ] Add `src/contracts/api.ts` for API request/response shapes the frontend consumes.
-- [ ] Define shared enums or unions for:
+- [x] Add `src/types/question.ts`
+- [x] Add `src/types/concept.ts`
+- [x] Add `src/types/review.ts`
+- [x] Add `src/types/progress.ts`
+- [x] Add `src/contracts/api.ts` for API request/response shapes the frontend consumes.
+- [x] Define shared enums or unions for:
   - certifications
   - domains
   - question types
   - flashcard review states
   - question retry states
-- [ ] Add `zod` schemas for source content validation.
-- [ ] Create `content/CLF-C02/` and `content/SAA-C03/` with a schema README or example file.
-- [ ] Create `src/features/identity/` for guest-session continuity.
-- [ ] Create `src/components/study/` directory.
+- [x] Add `zod` schemas for source content validation.
+- [x] Create `content/CLF-C02/` and `content/SAA-C03/` with a schema README or example file.
+- [x] Create `src/features/identity/` for guest-session continuity.
+- [x] Create `src/components/study/` directory.
 
 ### 3. Content Pipeline
 
