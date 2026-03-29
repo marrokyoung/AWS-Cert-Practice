@@ -2,49 +2,9 @@
 
 ## Goal
 
-Build the first implementation baseline for a browser-first, guest-first AWS cert study app with:
+Deliver a working Sprint 1 baseline: static frontend, serverless backend, content pipeline, app shell, and one question flow.
 
-- static frontend deployment on `S3 + CloudFront`
-- serverless AWS backend foundation
-- DynamoDB-backed data model and API contracts
-- minimal client-side guest-session continuity only
-- generated content catalog from repo source files
-- initial app shell and home page
-- one working question flow
-
-## Current Baseline
-
-- [x] Next.js scaffold exists
-- [x] `pnpm` is in use
-- [x] root `README.md` exists
-- [x] root `DESIGN.md` exists
-- [x] package name is `aws-cert-practice`
-
-## Architecture Guardrails
-
-- [ ] Do not treat browser storage as the primary persistence layer.
-- [ ] Keep content loading separate from user progress storage.
-- [ ] Keep Flashcard Review and Question Retry as separate models and flows.
-- [ ] Provision the AWS backend foundation in Sprint 1, but keep guest study flows usable without login.
-- [ ] Do not add Cognito-backed user flows in Sprint 1.
-- [ ] Keep the frontend deployable as a static site on `S3 + CloudFront`.
-- [ ] Keep public AWS endpoints behind rate limits, cost controls, and least-privilege IAM.
-- [ ] Keep all frontend-to-backend traffic behind a small API client layer. No ad hoc fetch logic scattered across UI components.
-
-## Branch Workflow
-
-- [ ] Create a fresh branch from `main` for one discrete checklist step.
-- [ ] Finish the branch completely before opening the next one.
-- [ ] Merge only when the step meets its acceptance criteria.
-- [ ] Keep each branch small enough to review quickly.
-
-Recommended naming pattern:
-
-- `chore/...` for setup
-- `feat/...` for app features
-- `infra/...` for Terraform or AWS resources
-- `backend/...` for Rust Lambda work
-- `fix/...` for general error fixes
+See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Execution Order
 
