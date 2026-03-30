@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { CERT_DOMAINS } from "@/types/shared";
+import { CERT_DOMAINS } from "../types/shared";
+import { awsSourceUrlsSchema } from "./aws-source-url";
 
 const VALID_DOMAINS: Record<string, readonly string[]> = CERT_DOMAINS;
 
@@ -30,11 +31,10 @@ export const questionSchema = z
     correctAnswers: z.array(z.string()).min(1),
     explanation: z.string(),
     distractorExplanations: z.record(z.string(), z.string()),
-    awsSourceUrls: z.array(z.url()).min(1),
+    awsSourceUrls: awsSourceUrlsSchema,
     examVersion: z.string(),
     tags: z.array(z.string()),
-    status: z.enum(["verified", "community", "draft"]),
-    contributors: z.array(z.string()),
+    status: z.enum(["draft", "ready"]),
   })
   .refine(
     (q) => VALID_DOMAINS[q.cert]?.includes(q.domain),

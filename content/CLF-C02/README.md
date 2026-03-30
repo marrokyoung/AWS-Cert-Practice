@@ -23,9 +23,5 @@ CLF-C02/
 
 ## Content Format
 
-Questions and concept cards are stored as JSON files validated against the
-schemas in `src/schemas/`. See `src/schemas/question.schema.ts` and
-`src/schemas/concept.schema.ts` for the expected shape.
-
-Each file must pass schema validation before the content build pipeline
-will include it in the generated catalog.
+See [content/README.md](../README.md) for shared authoring rules, filename
+conventions, example payloads, and schema references.

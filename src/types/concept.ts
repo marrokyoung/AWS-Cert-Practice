@@ -1,4 +1,4 @@
-import type { Certification, Domain } from "./shared";
+import type { Certification, ContentStatus, Domain } from "./shared";
 
 /** Concept card subtypes for Learn mode. */
 export type ConceptCardType = "concept" | "comparison" | "when-to-use" | "gotcha";
@@ -15,4 +15,5 @@ export interface ConceptCard {
   relatedQuestionIds: string[];
   awsSourceUrls: string[];
   tags: string[];
+  status: ContentStatus;
 }

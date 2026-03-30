@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { CERT_DOMAINS } from "@/types/shared";
+import { CERT_DOMAINS } from "../types/shared";
+import { awsSourceUrlsSchema } from "./aws-source-url";
 
 const VALID_DOMAINS: Record<string, readonly string[]> = CERT_DOMAINS;
 
@@ -23,8 +24,9 @@ export const conceptCardSchema = z
     front: z.string(),
     back: z.string(),
     relatedQuestionIds: z.array(z.string()),
-    awsSourceUrls: z.array(z.url()).min(1),
+    awsSourceUrls: awsSourceUrlsSchema,
     tags: z.array(z.string()),
+    status: z.enum(["draft", "ready"]),
   })
   .refine(
     (c) => VALID_DOMAINS[c.cert]?.includes(c.domain),

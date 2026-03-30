@@ -27,5 +27,4 @@ export interface Question {
   examVersion: string;
   tags: string[];
   status: ContentStatus;
-  contributors: string[];
 }
