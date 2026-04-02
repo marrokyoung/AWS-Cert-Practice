@@ -52,15 +52,15 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ### 3. Content Pipeline
 
-- [ ] Decide and document the exact source format for:
+- [x] Decide and document the exact source format for:
   - questions
   - concept cards
-- [ ] Add `scripts/build-content.ts`.
-- [ ] Implement source validation before catalog generation.
-- [ ] Generate `src/generated/content-catalog.ts` from repo content.
-- [ ] Ensure generated content can be safely imported by the web app.
-- [ ] Keep raw source content out of Client Components.
-- [ ] Make `content:build` repeatable and deterministic.
+- [x] Add `scripts/build-content.ts`.
+- [x] Implement source validation before catalog generation.
+- [x] Generate `src/generated/content-catalog.ts` from repo content.
+- [x] Ensure generated content can be safely imported by the web app.
+- [x] Keep raw source content out of Client Components.
+- [x] Make `content:build` repeatable and deterministic.
 
 ### 4. Backend Foundation
 
