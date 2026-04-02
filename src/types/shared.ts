@@ -36,5 +36,5 @@ export type QuestionType = "multiple-choice" | "multiple-select";
 /** Difficulty tiers aligned to cert complexity. */
 export type Difficulty = "foundational" | "intermediate" | "advanced";
 
-/** Content verification status. */
-export type ContentStatus = "verified" | "community" | "draft";
+/** Content editorial readiness status. */
+export type ContentStatus = "draft" | "ready";

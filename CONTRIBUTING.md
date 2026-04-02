@@ -37,6 +37,7 @@ pnpm dev
 ## Content Contributions
 
 - Use official AWS documentation as the source for all questions and concepts
+- For now, `awsSourceUrls` must use `https://docs.aws.amazon.com/...`
 - Include explanations for the correct answer and every distractor
 - No copied or leaked exam content
 - Keep question and concept IDs stable across edits
