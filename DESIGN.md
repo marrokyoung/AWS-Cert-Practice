@@ -66,6 +66,14 @@ content/              -- source questions and concept cards
 - Keep contracts separate from domain types
 - Keep guest flows working without Cognito
 
+## Testing Strategy
+
+- Keep the default verification bar for frontend changes at `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`.
+- Use lightweight TypeScript tests for pure logic and content pipeline behavior, including schema validation and generated-catalog checks.
+- Add component tests once the study UI has real interaction, focusing on question flow behavior rather than placeholder pages.
+- Add a small end-to-end browser suite once seeded content and the first question flow exist.
+- Keep backend and infrastructure verification in their native toolchains: `cargo test` / `cargo check` for Rust, and `terraform fmt` / `terraform validate` for infrastructure.
+
 ## Future Directions
 
 - Cognito social login (Google, Apple)
