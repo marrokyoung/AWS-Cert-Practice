@@ -6,9 +6,27 @@ Deliver a working Sprint 1 baseline: static frontend, serverless backend, conten
 
 See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
+## Current Status
+
+- Completed: Steps `1-3`
+- Next step: `4. Backend Foundation`
+- Next branch: `feat/backend-foundation`
+
+## Delivery Guardrails
+
+- Keep exactly one checklist step per branch.
+- Keep each branch mergeable on its own; if a prerequisite is missing, add only the smallest missing piece.
+- Prefer contract-first and placeholder-first implementations over premature abstractions.
+- Do not start the next branch until the current branch passes its step gate.
+- If a branch changes shared contracts, schemas, or generated files, rerun the affected frontend and backend checks even if the change looks isolated.
+- Keep authenticated flows, production polish, and non-Sprint-1 extras out of scope unless the current step explicitly requires them.
+- When in doubt, choose the simpler implementation that preserves the existing boundaries in [DESIGN.md](./DESIGN.md).
+
 ## Execution Order
 
 ### 1. Repo And Dependency Baseline
+
+Branch: `my/foundation-tooling`
 
 - [x] Remove or replace remaining default Next.js scaffold content that is no longer useful.
 - [x] Ensure local tooling exists for:
@@ -27,6 +45,8 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
   - optional local backend/dev helper scripts if needed
 
 ### 2. Route, Type, And Contract Foundation
+
+Branch: `my/route-type-contract-foundation`
 
 - [x] Create route structure with placeholder `page.tsx` files:
   - `src/app/[cert]/learn/page.tsx`
@@ -52,6 +72,8 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ### 3. Content Pipeline
 
+Branch: `my/content-pipeline`
+
 - [x] Decide and document the exact source format for:
   - questions
   - concept cards
@@ -64,6 +86,10 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ### 4. Backend Foundation
 
+Branch: `my/backend-foundation`
+
+Step goal: add the smallest useful Rust Lambda foundation that matches the existing TypeScript contracts.
+
 - [ ] Create the Rust API project under `backend/rust-api/`.
 - [ ] Define initial API contracts for:
   - health
@@ -75,7 +101,19 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 - [ ] Keep authenticated user endpoints out of Sprint 1.
 - [ ] Keep the backend small and serverless-first.
 
+Step gate:
+
+- [ ] `cargo fmt --check`
+- [ ] `cargo test`
+- [ ] `cargo check`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm test`
+
 ### 5. Infrastructure Foundation
+
+Branch: `my/aws-foundation`
+
+Step goal: add the minimum Terraform baseline needed for the static frontend, serverless API, and core safety controls.
 
 - [ ] Add Terraform root structure under `infra/terraform/`.
 - [ ] Define frontend resources:
@@ -95,16 +133,36 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
   - CloudWatch alarms
 - [ ] Ensure `terraform fmt` and `terraform validate` are part of the workflow.
 
+Step gate:
+
+- [ ] `terraform fmt -check -recursive`
+- [ ] `terraform validate`
+
 ### 6. Frontend API And Guest Session Foundation
 
+Branch: `my/frontend-api-session-foundation`
+
+Step goal: implement the frontend API boundary and the existing guest-session placeholder without leaking fetch/storage logic into UI components.
+
 - [ ] Add `src/features/api/client.ts`.
-- [ ] Add `src/features/identity/guest-session.ts`.
+- [ ] Implement `src/features/identity/guest-session.ts`.
 - [ ] Define how a guest session is created and resumed in the client.
 - [ ] Limit browser-side persistence to the minimum needed for guest continuity and UI preferences.
 - [ ] Keep durable domain assumptions out of the browser persistence layer.
 - [ ] Make it possible to swap guest-only flows for Cognito-backed flows later without rewriting the UI tree.
 
+Step gate:
+
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm test`
+- [ ] `pnpm build`
+
 ### 7. UI Foundation
+
+Branch: `my/ui-shell-foundation`
+
+Step goal: build the app shell and design tokens without coupling the layout to unfinished backend work.
 
 - [ ] Wire up the chosen fonts:
   - `Space Grotesk`
@@ -120,7 +178,17 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 - [ ] Build `src/components/study/study-card-shell.tsx`.
 - [ ] Keep the shell compatible with first-run and returning-user states.
 
+Step gate:
+
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm build`
+
 ### 8. Home Page Baseline
+
+Branch: `my/home-baseline`
+
+Step goal: make the home page useful for first-run and returning-user placeholder states before real progress data exists.
 
 - [ ] Implement first-run state:
   - cert selection
@@ -134,19 +202,17 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
   - recent progress
 - [ ] Keep the home page usable without Cognito login.
 
-### 9. Question Flow Baseline
+Step gate:
 
-- [ ] Add `src/components/study/question-card.tsx`.
-- [ ] Load seeded question data from the generated content catalog.
-- [ ] Render question stem and answer options.
-- [ ] Support answer submission.
-- [ ] Show correctness state.
-- [ ] Show explanation and distractor explanations.
-- [ ] Capture confidence selection.
-- [ ] Route question-result persistence through a dedicated app boundary, not directly through UI components.
-- [ ] Ensure missed or low-confidence results can be handed off to Question Retry later.
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm build`
 
-### 10. Seed Content
+### 9. Seed Content
+
+Branch: `my/seed-sprint1-baseline`
+
+Step goal: add the minimum real content needed to exercise the generated catalog and unblock UI work.
 
 - [ ] Add at least one domain folder per cert.
 - [ ] Seed a minimum of `5` usable questions per cert to unblock UI development.
@@ -158,7 +224,41 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
   - AWS source URLs
   - tags
 
+Step gate:
+
+- [ ] `pnpm content:build`
+- [ ] `pnpm test`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm build`
+
+### 10. Question Flow Baseline
+
+Branch: `my/practice-question-flow`
+
+Step goal: implement one clean practice-question loop against the generated catalog, with persistence routed through an app boundary.
+
+- [ ] Add `src/components/study/question-card.tsx`.
+- [ ] Load seeded question data from the generated content catalog.
+- [ ] Render question stem and answer options.
+- [ ] Support answer submission.
+- [ ] Show correctness state.
+- [ ] Show explanation and distractor explanations.
+- [ ] Capture confidence selection.
+- [ ] Route question-result persistence through a dedicated app boundary, not directly through UI components.
+- [ ] Ensure missed or low-confidence results can be handed off to Question Retry later.
+
+Step gate:
+
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm test`
+- [ ] `pnpm build`
+
 ### 11. Initial Review And Session Boundaries
+
+Branch: `my/review-session-boundaries`
+
+Step goal: define the review/session seams now without prematurely building the full Review experience.
 
 - [ ] Create file/module placeholders for:
   - `flashcard-scheduler.ts`
@@ -169,11 +269,19 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 - [ ] Do not fully implement Review yet, but define the interfaces now.
 - [ ] Keep Flashcard Review and Question Retry separate even if one is only a stub in Sprint 1.
 
+Step gate:
+
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm test`
+
 ## Acceptance Criteria
 
 - [ ] `pnpm lint` passes.
+- [ ] `pnpm test` passes.
 - [ ] `pnpm typecheck` passes.
 - [ ] `pnpm build` passes.
+- [ ] `cargo test` passes for the Rust API foundation.
 - [ ] `cargo check` passes for the Rust API foundation.
 - [ ] `terraform fmt` and `terraform validate` pass.
 - [ ] The app runs locally with `pnpm dev`.
@@ -196,32 +304,3 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 - [ ] Full Exam mode
 - [ ] Offline-first local cache strategy beyond minimal guest continuity
 - [ ] Full production rollout, custom domain setup, and polished release automation
-
-## Recommended Branch Sequence
-
-1. `chore/foundation-tooling`
-Confirm `pnpm`/Rust/Terraform, add frontend dependencies, add scripts.
-
-2. `feat/route-type-contract-foundation`
-Create route structure, core domain types, API contracts, content folder structure, and zod schemas.
-
-3. `feat/content-pipeline`
-Build the content build script, source validation, and generated content catalog.
-
-4. `backend/rust-api-skeleton`
-Create the Lambda project, basic handlers, error format, and guest-session/bootstrap contracts.
-
-5. `infra/aws-foundation`
-Add Terraform for `S3 + CloudFront`, API Gateway, Lambda, DynamoDB, IAM, and baseline safety controls.
-
-6. `feat/frontend-api-and-session`
-Add the API client layer and minimal guest-session continuity handling.
-
-7. `feat/ui-shell-and-home`
-Build the app shell, fonts, tokens, and home page first-run/returning states.
-
-8. `feat/practice-question-flow`
-Build the first real question card flow against seeded content.
-
-9. `feat/review-boundaries`
-Add review/session module boundaries and stubs without fully implementing review yet.
