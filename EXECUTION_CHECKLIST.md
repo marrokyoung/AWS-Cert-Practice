@@ -10,7 +10,7 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 - Completed: Steps `1-3`
 - Next step: `4. Backend Foundation`
-- Next branch: `feat/backend-foundation`
+- Next branch: `my/backend-foundation`
 
 ## Delivery Guardrails
 
@@ -90,19 +90,72 @@ Branch: `my/backend-foundation`
 
 Step goal: add the smallest useful Rust Lambda foundation that matches the existing TypeScript contracts.
 
+- [ ] Pre-flight:
+  - Confirm the working branch is `my/backend-foundation`.
+  - Treat `src/contracts/api.ts` as the frontend source of truth for request/response shapes.
+  - If the Rust API needs a new contract, add or update the TypeScript contract first in the same branch.
+  - Do not pull Step 5 infrastructure work or Step 6 frontend client work into this branch unless a tiny contract fix is required.
+- [ ] Lock the Sprint 1 scope before coding:
+  - Include only `health`, `version`, one minimal config/bootstrap shape, and `guest-session bootstrap`.
+  - Exclude Cognito, authenticated-user flows, review scheduling, progress sync, exam persistence, and admin endpoints.
+  - Prefer placeholder-first behavior over speculative abstractions.
 - [ ] Create the Rust API project under `backend/rust-api/`.
-- [ ] Define initial API contracts for:
-  - health
-  - version
-  - future config/bootstrap data
-  - guest-session bootstrap
-- [ ] Add a consistent error type and response format for the API.
-- [ ] Define DynamoDB table names and ownership boundaries.
+- [ ] Keep the Rust project intentionally small:
+  - Use only the minimum runtime, HTTP, serialization, and error-handling dependencies needed for Lambda.
+  - Prefer a small route dispatcher over a heavy web framework.
+  - Avoid repository layers, service containers, or generic abstractions unless the compiler forces a clear need.
+- [ ] Define the initial endpoint surface explicitly:
+  - `GET /health`
+  - `GET /version`
+  - one config/bootstrap endpoint with a single stable path chosen now and reused later
+  - `POST /guest-sessions`
+- [ ] Mirror the existing TypeScript contracts in Rust for:
+  - `HealthResponse`
+  - `VersionResponse`
+  - `GuestSessionBootstrapRequest`
+  - `GuestSessionBootstrapResponse`
+  - `ApiError`
+- [ ] Fill the current contract gap for future config/bootstrap data:
+  - Add the missing TypeScript contract in `src/contracts/api.ts` before implementing the Rust type.
+  - Keep that response minimal and static-safe; include only fields the frontend will genuinely need to bootstrap later.
+  - Do not move content catalog data, progress summaries, or auth state into bootstrap.
+- [ ] Keep wire behavior exact and predictable:
+  - Return JSON only.
+  - Keep field names identical between TypeScript and Rust.
+  - Use ISO-8601 timestamps for all time fields.
+  - Keep response envelopes shallow; avoid unnecessary nesting.
+- [ ] Add one consistent API error envelope:
+  - `code`
+  - `message`
+  - optional `details`
+  - Map internal failures to sanitized client responses.
+- [ ] Decide guest-session bootstrap behavior deliberately:
+  - If persistence is not required yet, keep the handler placeholder-only and document that choice.
+  - If persistence is required now, write only the minimum guest-session record needed for resume continuity.
+  - Do not couple guest-session bootstrap to progress, review, or authenticated identity.
+- [ ] Define DynamoDB table naming and ownership boundaries before any data access code:
+  - Use environment-safe names or a documented naming convention, not ad hoc literals scattered through handlers.
+  - Keep guest sessions separate from future progress/review data.
+  - Document which endpoint owns which table and which data does not belong in that table.
+- [ ] Add the minimum tests that protect the contract boundary:
+  - route smoke tests for each implemented endpoint
+  - serialization tests for success payloads
+  - request validation tests for `POST /guest-sessions`
+  - error-response tests for invalid input and unknown routes
 - [ ] Keep authenticated user endpoints out of Sprint 1.
 - [ ] Keep the backend small and serverless-first.
 
+Do not merge this step if:
+
+- [ ] Any Rust response shape no longer matches `src/contracts/api.ts`.
+- [ ] The branch introduces Cognito, user accounts, or durable progress models.
+- [ ] The guest-session path leaks progress or review concerns into the session model.
+- [ ] The API requires infrastructure changes beyond what Step 5 is meant to add.
+- [ ] The backend foundation cannot be explained as four small endpoints plus shared error handling.
+
 Step gate:
 
+- [ ] `cargo fmt`
 - [ ] `cargo fmt --check`
 - [ ] `cargo test`
 - [ ] `cargo check`
