@@ -13,15 +13,17 @@ jobs:
     name: Frontend Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+        with:
+          version: 10.15.1
 
       - uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: pnpm
-
-      - run: corepack enable
-      - run: corepack prepare pnpm@10 --activate
 
       - run: pnpm install --frozen-lockfile
 
@@ -36,7 +38,7 @@ jobs:
       run:
         working-directory: backend/rust-api
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: dtolnay/rust-toolchain@stable
         with:
