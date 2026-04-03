@@ -1,0 +1,1 @@
+pub const GUEST_SESSION_TTL_SECONDS: i64 = 86_400;

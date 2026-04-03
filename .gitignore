@@ -20,6 +20,9 @@
 # production
 /build
 
+# rust
+/backend/rust-api/target/
+
 # misc
 .DS_Store
 *.pem
