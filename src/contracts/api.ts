@@ -17,6 +17,13 @@ export interface VersionResponse {
   contentVersion: string;
 }
 
+/** GET /config -- static bootstrap data the frontend needs on startup. */
+export interface ConfigResponse {
+  supportedCerts: string[];
+  defaultCert: string;
+  guestSessionTtlSeconds: number;
+}
+
 /** POST /guest-sessions -- request body. */
 export interface GuestSessionBootstrapRequest {
   /** Client-generated fingerprint for continuity (optional). */
