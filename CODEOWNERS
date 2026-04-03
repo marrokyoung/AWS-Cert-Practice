@@ -1,0 +1,6 @@
+# Default owner for the repository while the project is single-maintainer.
+* @marrokyoung
+
+/.github/ @marrokyoung
+/backend/ @marrokyoung
+/content/ @marrokyoung
