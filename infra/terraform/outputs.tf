@@ -23,6 +23,11 @@ output "lambda_function_name" {
   value       = aws_lambda_function.api.function_name
 }
 
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID (used for cache invalidation)."
+  value       = aws_cloudfront_distribution.frontend.id
+}
+
 output "alarm_sns_topic_arn" {
   description = "SNS topic ARN for CloudWatch alarm notifications."
   value       = aws_sns_topic.alarms.arn

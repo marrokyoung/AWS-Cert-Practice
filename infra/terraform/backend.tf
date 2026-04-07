@@ -58,8 +58,9 @@ resource "aws_lambda_function" "api" {
   role             = aws_iam_role.lambda.arn
   handler          = "bootstrap"
   runtime          = "provided.al2023"
+  architectures    = ["arm64"]
   filename         = var.lambda_package_path
-  source_code_hash = var.lambda_source_code_hash
+  source_code_hash = coalesce(var.lambda_source_code_hash, filebase64sha256(var.lambda_package_path))
   timeout          = 10
   memory_size      = 128
 
