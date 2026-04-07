@@ -23,6 +23,13 @@
 # rust
 /backend/rust-api/target/
 
+# terraform
+/infra/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
 # misc
 .DS_Store
 *.pem
@@ -45,3 +52,6 @@ next-env.d.ts
 
 # Claude doc files
 CLAUDE.md
+
+# Personal notes
+AWS_NOTES.md
