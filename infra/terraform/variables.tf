@@ -34,8 +34,9 @@ variable "lambda_package_path" {
 }
 
 variable "lambda_source_code_hash" {
-  description = "Base64-encoded SHA256 hash of the Lambda deployment package, used to trigger updates."
+  description = "Base64-encoded SHA256 hash of the Lambda deployment package. Auto-computed from the file if not set."
   type        = string
+  default     = null
 }
 
 variable "lambda_reserved_concurrency" {

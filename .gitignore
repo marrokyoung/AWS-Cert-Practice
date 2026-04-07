@@ -27,6 +27,7 @@
 /infra/terraform/.terraform/
 *.tfstate
 *.tfstate.*
+*.tfvars
 crash.log
 crash.*.log
 
