@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build the Rust Lambda function for arm64 Linux and package as a zip.
-# Requires: cargo-lambda (install with: cargo install cargo-lambda)
+# Build the Rust Lambda function for arm64 and package as a zip.
+# Run this from inside WSL.
+#
+# Requires (inside WSL): rustup, cargo-lambda, ziglang (pip3)
 #
 # Output: backend/rust-api/target/lambda/rust-api/bootstrap.zip
 
-cd "$(git rev-parse --show-toplevel)/backend/rust-api"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR/../backend/rust-api"
 
 echo "Building Lambda function (arm64)..."
 cargo lambda build --release --arm64 --output-format zip
@@ -20,4 +23,3 @@ fi
 
 echo ""
 echo "Build complete: backend/rust-api/$ZIP"
-echo "Hash: $(openssl dgst -sha256 -binary "$ZIP" | openssl base64)"
