@@ -8,9 +8,9 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Current Status
 
-- Completed: Steps `1-4`
-- Next step: `5. Infrastructure Foundation`
-- Next branch: `my/aws-foundation`
+- Completed: Steps `1-6`
+- Next step: `7. UI Foundation`
+- Next branch: `my/ui-shell-foundation`
 
 ## Delivery Guardrails
 
@@ -168,28 +168,28 @@ Branch: `my/aws-foundation`
 
 Step goal: add the minimum Terraform baseline needed for the static frontend, serverless API, and core safety controls.
 
-- [ ] Add Terraform root structure under `infra/terraform/`.
-- [ ] Define frontend resources:
+- [x] Add Terraform root structure under `infra/terraform/`.
+- [x] Define frontend resources:
   - S3 bucket
   - CloudFront distribution
   - OAC
-- [ ] Define backend resources:
+- [x] Define backend resources:
   - API Gateway
   - Lambda function
   - DynamoDB tables
-- [ ] Define IAM roles and policies with least privilege.
-- [ ] Add safety controls:
+- [x] Define IAM roles and policies with least privilege.
+- [x] Add safety controls:
   - API throttling
   - WAF or rate-based protections
   - Lambda reserved concurrency
   - billing/budget alarms
   - CloudWatch alarms
-- [ ] Ensure `terraform fmt` and `terraform validate` are part of the workflow.
+- [x] Ensure `terraform fmt` and `terraform validate` are part of the workflow.
 
 Step gate:
 
-- [ ] `terraform fmt -check -recursive`
-- [ ] `terraform validate`
+- [x] `terraform fmt -check -recursive`
+- [x] `terraform validate`
 
 ### 6. Frontend API And Guest Session Foundation
 
@@ -197,19 +197,97 @@ Branch: `my/frontend-api-session-foundation`
 
 Step goal: implement the frontend API boundary and the existing guest-session placeholder without leaking fetch/storage logic into UI components.
 
-- [ ] Add `src/features/api/client.ts`.
-- [ ] Implement `src/features/identity/guest-session.ts`.
-- [ ] Define how a guest session is created and resumed in the client.
-- [ ] Limit browser-side persistence to the minimum needed for guest continuity and UI preferences.
-- [ ] Keep durable domain assumptions out of the browser persistence layer.
-- [ ] Make it possible to swap guest-only flows for Cognito-backed flows later without rewriting the UI tree.
+- [x] Pre-flight:
+  - Confirm the working branch is `my/frontend-api-session-foundation`.
+  - Keep this step limited to API client, guest-session continuity, and the minimum app bootstrap wiring needed to initialize that session.
+  - Do not pull Step 7 shell/UI work or Step 8 home-page behavior into this branch except the smallest provider wiring required for initialization.
+  - Treat `src/contracts/api.ts` as the source of truth for frontend request/response shapes.
+- [x] Resolve the API module path deliberately:
+  - Add `src/features/api/client.ts` as the concrete implementation file.
+  - Keep `src/features/api/index.ts` only as a barrel re-export so existing folder imports stay stable.
+  - Keep all backend fetch logic inside `src/features/api/`; do not split ad hoc helpers across unrelated directories.
+- [x] Add build-time environment configuration for the static frontend:
+  - Add `.env.example` documenting `NEXT_PUBLIC_API_BASE_URL`.
+  - Treat the API base URL as required for deployed builds; do not hardcode the API Gateway URL in source files.
+  - Normalize exactly one trailing-slash edge in the client so callers do not care whether the env var ends with `/`.
+  - For local development, document using `.env.local` pointed at the deployed dev API until a local backend runner exists.
+- [x] Implement the API client surface in `src/features/api/client.ts`:
+  - `getHealth()` -> `GET /health`
+  - `getVersion()` -> `GET /version`
+  - `getConfig()` -> `GET /config`
+  - `createGuestSession(request)` -> `POST /guest-sessions`
+  - one shared JSON fetch wrapper that joins paths, parses JSON, and converts non-2xx responses into one typed client-side error shape aligned with `ApiError`
+  - send `Content-Type: application/json` only when a request body exists
+  - use `credentials: "omit"` and no auth headers in Sprint 1
+- [x] Keep the API boundary simple and predictable:
+  - Return typed contract data only on success.
+  - Surface missing `NEXT_PUBLIC_API_BASE_URL` and network failures as stable client-side errors instead of silent fallbacks.
+  - Do not add retries, caching, SWR-like abstractions, or proxy routes in this step.
+  - Implement `getHealth()`, `getVersion()`, and `getConfig()`, but do not make them hard prerequisites for initial page render.
+- [x] Add the guest-session persistence schema in `src/features/identity/guest-session.ts`:
+  - Use a single localStorage key: `aws-cert-practice.identity.v1`.
+  - Persist only `clientId`, `sessionId`, and `expiresAt`.
+  - Keep the schema versioned and isolated from future review/progress data.
+  - Do not store question state, review state, progress summaries, or content data in browser storage.
+- [x] Define the `clientId` strategy explicitly:
+  - Generate a stable anonymous `clientId` with `crypto.randomUUID()` on the client if one is missing.
+  - Reuse that `clientId` across guest-session renewals in the same browser.
+  - Treat it as an opaque identifier only; do not add fingerprinting, analytics, or cross-device assumptions.
+- [x] Implement guest-session lifecycle helpers in `src/features/identity/guest-session.ts`:
+  - read the stored identity record
+  - validate the stored shape and parse `expiresAt`
+  - detect expiry against the current time
+  - create a new session via `POST /guest-sessions` when the stored session is missing or expired
+  - persist the refreshed record
+  - expose one high-level `ensureGuestSession()` style function that app bootstrap code can call
+  - keep the orchestration in plain TypeScript functions so it can be tested without a DOM-specific test runner
+- [x] Add the session state store in `src/features/identity/store.ts`:
+  - use Zustand because `DESIGN.md` already calls for it
+  - keep only `clientId`, `sessionId`, `expiresAt`, `status`, `error`, and `isInitialized`
+  - do not put content catalog data, progress data, review data, or API response caches into this store
+  - do not use Zustand persistence middleware in this step; keep persistence explicit in `guest-session.ts`
+- [x] Add the app bootstrap boundary explicitly:
+  - Add `src/features/identity/session-provider.tsx` as the only component that triggers guest-session initialization.
+  - Add `src/app/providers.tsx` as the top-level client provider entry.
+  - Wrap the root layout with that provider while keeping `src/app/layout.tsx` as a server component.
+  - Initialize in this order: load storage -> ensure `clientId` -> reuse unexpired session or create a new one -> hydrate the store.
+- [x] Keep config/bootstrap scope deliberately small:
+  - Implement `getConfig()` now because the backend contract already exists.
+  - Do not block guest-session initialization on `GET /config`.
+  - Do not add a broader config/bootstrap store until a later step genuinely consumes that data.
+- [x] Define session-renewal and degraded-mode behavior deliberately:
+  - If the stored session is expired at boot, silently replace it with a new guest session.
+  - If session creation fails, keep static content routes usable and mark the identity store as errored instead of crashing the tree.
+  - Do not add background refresh, polling, offline mutation queues, or recovery prompts in this step.
+- [x] Keep client/server boundaries explicit:
+  - `src/features/api/client.ts` must not touch `window`, `localStorage`, or other browser-only APIs.
+  - `src/features/identity/*` may use browser APIs, but only behind client-only entry points.
+  - Keep `src/app/layout.tsx` free of direct localStorage access and session bootstrap side effects.
+  - Content continues to come from the generated catalog, not from the API.
+- [x] Keep future Cognito replacement possible:
+  - UI components should read identity/session state through the store or a tiny exported hook, not raw localStorage.
+  - Keep guest-session naming contained to `src/features/identity/`; do not leak it into general UI component APIs.
+  - Avoid assumptions that guest identity is the final long-term model.
+- [x] Add the minimum tests that protect the boundary:
+  - API client success and error handling tests with mocked `fetch`
+  - guest-session storage and expiry tests
+  - session bootstrap tests covering reuse, renewal, and API failure paths
+  - if the current `pnpm test` script only targets one file, expand it so the new frontend tests actually run
+
+Do not merge this step if:
+
+- [x] UI components call `fetch` directly for backend requests.
+- [x] Guest identity uses more than one localStorage key without a documented reason.
+- [x] The deployed API URL is hardcoded in source files instead of flowing through `NEXT_PUBLIC_API_BASE_URL`.
+- [x] Guest-session bootstrap failure prevents static content routes from rendering.
+- [x] The branch introduces Cognito, authenticated-user flows, progress persistence, or review persistence.
 
 Step gate:
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
-- [ ] `pnpm build`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
+- [x] `pnpm build` with `NEXT_PUBLIC_API_BASE_URL` set
 
 ### 7. UI Foundation
 
