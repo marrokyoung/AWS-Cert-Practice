@@ -6,12 +6,11 @@
  */
 
 export {
-  ensureGuestSession,
-  readStoredIdentity,
-  isExpired,
+  bootstrapGuestSession,
+  readStoredClientId,
   resolveClientId,
 } from "./guest-session";
-export type { StoredIdentity } from "./guest-session";
+export type { GuestSession } from "./guest-session";
 
 export { useSessionStore } from "./store";
 export type { SessionState, SessionStatus, SessionStore } from "./store";

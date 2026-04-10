@@ -37,15 +37,14 @@ globalThis.fetch = async () => {
 process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
 
 const {
-  readStoredIdentity,
-  writeStoredIdentity,
-  isExpired,
+  readStoredClientId,
+  writeStoredClientId,
   resolveClientId,
-  ensureGuestSession,
+  bootstrapGuestSession,
   // eslint-disable-next-line @typescript-eslint/no-require-imports
 } = require("../src/features/identity/guest-session") as typeof import("../src/features/identity/guest-session");
 
-const STORAGE_KEY = "aws-cert-practice.identity.v1";
+const STORAGE_KEY = "aws-cert-practice.clientId.v1";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -56,82 +55,40 @@ function resetStorage() {
   fetchCallCount = 0;
 }
 
+/** Produce an ISO timestamp safely in the future for bootstrap tests. */
 function futureDate(): string {
   return new Date(Date.now() + 86_400_000).toISOString();
 }
 
-function pastDate(): string {
-  return new Date(Date.now() - 1000).toISOString();
-}
-
 // ---------------------------------------------------------------------------
-// readStoredIdentity
+// readStoredClientId
 // ---------------------------------------------------------------------------
 
-test("readStoredIdentity returns null when storage is empty", () => {
+test("readStoredClientId returns null when storage is empty", () => {
   resetStorage();
-  assert.equal(readStoredIdentity(), null);
+  assert.equal(readStoredClientId(), null);
 });
 
-test("readStoredIdentity returns null for invalid JSON", () => {
+test("readStoredClientId returns null for empty string", () => {
   resetStorage();
-  storage.set(STORAGE_KEY, "not-json");
-  assert.equal(readStoredIdentity(), null);
+  storage.set(STORAGE_KEY, "");
+  assert.equal(readStoredClientId(), null);
 });
 
-test("readStoredIdentity returns null for missing fields", () => {
+test("readStoredClientId returns valid clientId", () => {
   resetStorage();
-  storage.set(STORAGE_KEY, JSON.stringify({ clientId: "c" }));
-  assert.equal(readStoredIdentity(), null);
-});
-
-test("readStoredIdentity returns null for empty string fields", () => {
-  resetStorage();
-  storage.set(STORAGE_KEY, JSON.stringify({ clientId: "", sessionId: "s", expiresAt: "2026-01-01" }));
-  assert.equal(readStoredIdentity(), null);
-});
-
-test("readStoredIdentity returns valid identity", () => {
-  resetStorage();
-  const identity = {
-    clientId: "c-1",
-    sessionId: "s-1",
-    expiresAt: futureDate(),
-  };
-  storage.set(STORAGE_KEY, JSON.stringify(identity));
-  assert.deepEqual(readStoredIdentity(), identity);
+  storage.set(STORAGE_KEY, "client-abc");
+  assert.equal(readStoredClientId(), "client-abc");
 });
 
 // ---------------------------------------------------------------------------
-// writeStoredIdentity
+// writeStoredClientId
 // ---------------------------------------------------------------------------
 
-test("writeStoredIdentity persists to localStorage", () => {
+test("writeStoredClientId persists to localStorage", () => {
   resetStorage();
-  const identity = {
-    clientId: "c-1",
-    sessionId: "s-1",
-    expiresAt: futureDate(),
-  };
-  writeStoredIdentity(identity);
-  assert.equal(storage.get(STORAGE_KEY), JSON.stringify(identity));
-});
-
-// ---------------------------------------------------------------------------
-// isExpired
-// ---------------------------------------------------------------------------
-
-test("isExpired returns true for past date", () => {
-  assert.equal(isExpired({ clientId: "", sessionId: "", expiresAt: pastDate() }), true);
-});
-
-test("isExpired returns false for future date", () => {
-  assert.equal(isExpired({ clientId: "", sessionId: "", expiresAt: futureDate() }), false);
-});
-
-test("isExpired returns true for invalid/corrupt timestamp", () => {
-  assert.equal(isExpired({ clientId: "c", sessionId: "s", expiresAt: "not-a-date" }), true);
-  assert.equal(isExpired({ clientId: "c", sessionId: "s", expiresAt: "" }), true);
+  writeStoredClientId("client-xyz");
+  assert.equal(storage.get(STORAGE_KEY), "client-xyz");
 });
 
 // ---------------------------------------------------------------------------
@@ -139,42 +96,20 @@ test("isExpired returns true for invalid/corrupt timestamp", () => {
 // ---------------------------------------------------------------------------
 
 test("resolveClientId reuses existing clientId", () => {
-  assert.equal(
-    resolveClientId({ clientId: "existing", sessionId: "", expiresAt: "" }),
-    "existing",
-  );
+  assert.equal(resolveClientId("existing"), "existing");
 });
 
-test("resolveClientId generates UUID when no stored identity", () => {
+test("resolveClientId generates UUID when no stored clientId", () => {
   assert.equal(resolveClientId(null), "mock-uuid-1234");
 });
 
 // ---------------------------------------------------------------------------
-// ensureGuestSession
+// bootstrapGuestSession
 // ---------------------------------------------------------------------------
 
-test("ensureGuestSession reuses unexpired stored session", async () => {
+test("bootstrapGuestSession always calls API even with stored clientId", async () => {
   resetStorage();
-  const identity = {
-    clientId: "c-1",
-    sessionId: "s-1",
-    expiresAt: futureDate(),
-  };
-  storage.set(STORAGE_KEY, JSON.stringify(identity));
-
-  const result = await ensureGuestSession();
-  assert.deepEqual(result, identity);
-  assert.equal(fetchCallCount, 0, "should not call API");
-});
-
-test("ensureGuestSession creates new session when expired", async () => {
-  resetStorage();
-  const expiredIdentity = {
-    clientId: "c-1",
-    sessionId: "s-old",
-    expiresAt: pastDate(),
-  };
-  storage.set(STORAGE_KEY, JSON.stringify(expiredIdentity));
+  storage.set(STORAGE_KEY, "c-1");
 
   const newExpiry = futureDate();
   mockFetchResponse = {
@@ -183,13 +118,14 @@ test("ensureGuestSession creates new session when expired", async () => {
     json: async () => ({ sessionId: "s-new", expiresAt: newExpiry }),
   };
 
-  const result = await ensureGuestSession();
-  assert.equal(result.clientId, "c-1", "should reuse existing clientId");
+  const result = await bootstrapGuestSession();
+  assert.equal(result.clientId, "c-1");
   assert.equal(result.sessionId, "s-new");
-  assert.equal(fetchCallCount, 1);
+  assert.equal(result.expiresAt, newExpiry);
+  assert.equal(fetchCallCount, 1, "should always call API");
 });
 
-test("ensureGuestSession creates new session when storage is empty", async () => {
+test("bootstrapGuestSession generates and persists clientId on first visit", async () => {
   resetStorage();
 
   const newExpiry = futureDate();
@@ -199,15 +135,29 @@ test("ensureGuestSession creates new session when storage is empty", async () =>
     json: async () => ({ sessionId: "s-fresh", expiresAt: newExpiry }),
   };
 
-  const result = await ensureGuestSession();
+  const result = await bootstrapGuestSession();
   assert.equal(result.clientId, "mock-uuid-1234");
   assert.equal(result.sessionId, "s-fresh");
   assert.equal(fetchCallCount, 1);
-  // Verify it was persisted.
-  assert.ok(storage.has(STORAGE_KEY));
+  // clientId should be persisted for future visits.
+  assert.equal(storage.get(STORAGE_KEY), "mock-uuid-1234");
 });
 
-test("ensureGuestSession throws on API failure", async () => {
+test("bootstrapGuestSession does not overwrite existing clientId", async () => {
+  resetStorage();
+  storage.set(STORAGE_KEY, "existing-client");
+
+  mockFetchResponse = {
+    ok: true,
+    status: 200,
+    json: async () => ({ sessionId: "s-1", expiresAt: futureDate() }),
+  };
+
+  await bootstrapGuestSession();
+  assert.equal(storage.get(STORAGE_KEY), "existing-client");
+});
+
+test("bootstrapGuestSession throws on API failure", async () => {
   resetStorage();
 
   mockFetchResponse = {
@@ -216,5 +166,21 @@ test("ensureGuestSession throws on API failure", async () => {
     json: async () => ({ code: "INTERNAL", message: "boom" }),
   };
 
-  await assert.rejects(() => ensureGuestSession());
+  await assert.rejects(() => bootstrapGuestSession());
+});
+
+test("sessionId is not stored in localStorage", async () => {
+  resetStorage();
+
+  mockFetchResponse = {
+    ok: true,
+    status: 200,
+    json: async () => ({ sessionId: "s-secret", expiresAt: futureDate() }),
+  };
+
+  await bootstrapGuestSession();
+  // Only clientId should be in storage, not the full session.
+  const stored = storage.get(STORAGE_KEY);
+  assert.ok(stored);
+  assert.ok(!stored.includes("s-secret"), "sessionId must not be in localStorage");
 });

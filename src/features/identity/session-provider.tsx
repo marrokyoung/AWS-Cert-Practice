@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ensureGuestSession } from "./guest-session";
+import { bootstrapGuestSession } from "./guest-session";
 import { useSessionStore } from "./store";
 
 /**
@@ -20,9 +20,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
     setInitializing();
 
-    ensureGuestSession()
-      .then((identity) => {
-        setSession(identity.clientId, identity.sessionId, identity.expiresAt);
+    bootstrapGuestSession()
+      .then((session) => {
+        setSession(session.clientId, session.sessionId, session.expiresAt);
       })
       .catch((err: unknown) => {
         const message =
