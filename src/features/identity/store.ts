@@ -1,7 +1,9 @@
 import { create } from "zustand";
 
+/** Lifecycle states for guest-session bootstrap in the browser. */
 export type SessionStatus = "idle" | "initializing" | "ready" | "error";
 
+/** UI-facing guest-session state kept in memory for the current app boot. */
 export interface SessionState {
   clientId: string | null;
   sessionId: string | null;
@@ -21,8 +23,10 @@ interface SessionActions {
   setError: (error: string) => void;
 }
 
+/** Combined Zustand state and actions for guest-session bootstrap. */
 export type SessionStore = SessionState & SessionActions;
 
+/** Zustand store for guest-session bootstrap state consumed by UI code. */
 export const useSessionStore = create<SessionStore>((set) => ({
   clientId: null,
   sessionId: null,
