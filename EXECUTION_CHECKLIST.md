@@ -225,21 +225,20 @@ Step goal: implement the frontend API boundary and the existing guest-session pl
   - Do not add retries, caching, SWR-like abstractions, or proxy routes in this step.
   - Implement `getHealth()`, `getVersion()`, and `getConfig()`, but do not make them hard prerequisites for initial page render.
 - [x] Add the guest-session persistence schema in `src/features/identity/guest-session.ts`:
-  - Use a single localStorage key: `aws-cert-practice.identity.v1`.
-  - Persist only `clientId`, `sessionId`, and `expiresAt`.
+  - Use a single localStorage key: `aws-cert-practice.clientId.v1`.
+  - Persist only `clientId` in localStorage; `sessionId` and `expiresAt` live only in memory (Zustand store).
   - Keep the schema versioned and isolated from future review/progress data.
-  - Do not store question state, review state, progress summaries, or content data in browser storage.
+  - Do not store session tokens, question state, review state, progress summaries, or content data in browser storage.
 - [x] Define the `clientId` strategy explicitly:
   - Generate a stable anonymous `clientId` with `crypto.randomUUID()` on the client if one is missing.
   - Reuse that `clientId` across guest-session renewals in the same browser.
   - Treat it as an opaque identifier only; do not add fingerprinting, analytics, or cross-device assumptions.
 - [x] Implement guest-session lifecycle helpers in `src/features/identity/guest-session.ts`:
-  - read the stored identity record
-  - validate the stored shape and parse `expiresAt`
-  - detect expiry against the current time
-  - create a new session via `POST /guest-sessions` when the stored session is missing or expired
-  - persist the refreshed record
-  - expose one high-level `ensureGuestSession()` style function that app bootstrap code can call
+  - read the stored clientId
+  - resolve or generate a stable clientId via `crypto.randomUUID()`
+  - always mint a fresh session via `POST /guest-sessions` on app boot (sessionId never stored locally)
+  - persist only the clientId on first visit
+  - expose one high-level `bootstrapGuestSession()` function that app bootstrap code can call
   - keep the orchestration in plain TypeScript functions so it can be tested without a DOM-specific test runner
 - [x] Add the session state store in `src/features/identity/store.ts`:
   - use Zustand because `DESIGN.md` already calls for it
@@ -250,13 +249,13 @@ Step goal: implement the frontend API boundary and the existing guest-session pl
   - Add `src/features/identity/session-provider.tsx` as the only component that triggers guest-session initialization.
   - Add `src/app/providers.tsx` as the top-level client provider entry.
   - Wrap the root layout with that provider while keeping `src/app/layout.tsx` as a server component.
-  - Initialize in this order: load storage -> ensure `clientId` -> reuse unexpired session or create a new one -> hydrate the store.
+  - Initialize in this order: load stored `clientId` -> resolve or generate `clientId` -> mint fresh session via API -> hydrate the store.
 - [x] Keep config/bootstrap scope deliberately small:
   - Implement `getConfig()` now because the backend contract already exists.
   - Do not block guest-session initialization on `GET /config`.
   - Do not add a broader config/bootstrap store until a later step genuinely consumes that data.
 - [x] Define session-renewal and degraded-mode behavior deliberately:
-  - If the stored session is expired at boot, silently replace it with a new guest session.
+  - Always mint a fresh session on boot; no local expiry check needed since sessionId is never stored.
   - If session creation fails, keep static content routes usable and mark the identity store as errored instead of crashing the tree.
   - Do not add background refresh, polling, offline mutation queues, or recovery prompts in this step.
 - [x] Keep client/server boundaries explicit:
@@ -270,8 +269,8 @@ Step goal: implement the frontend API boundary and the existing guest-session pl
   - Avoid assumptions that guest identity is the final long-term model.
 - [x] Add the minimum tests that protect the boundary:
   - API client success and error handling tests with mocked `fetch`
-  - guest-session storage and expiry tests
-  - session bootstrap tests covering reuse, renewal, and API failure paths
+  - guest-session clientId storage and resolution tests
+  - session bootstrap tests covering fresh mint, clientId persistence, and API failure paths
   - if the current `pnpm test` script only targets one file, expand it so the new frontend tests actually run
 
 Do not merge this step if:
