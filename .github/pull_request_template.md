@@ -1,5 +1,7 @@
 ## Summary
 
+@coderabbitai summary
+
 - What changed?
 - Why is this change needed?
 
