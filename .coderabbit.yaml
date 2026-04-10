@@ -1,0 +1,47 @@
+reviews:
+  profile: assertive
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  review_status: true
+  commit_status: true
+  suggested_reviewers: false
+  poem: false
+  in_progress_fortune: false
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+  path_instructions:
+    - path: "src/**/*.{ts,tsx}"
+      instructions: >
+        Review for Next.js 16 and React 19 compatibility, browser/server boundary
+        mistakes, and hydration hazards. Keep frontend and backend boundaries clean.
+        Flag ad hoc fetch calls in UI components; API calls should go through the API
+        client layer. Do not treat browser storage as the source of truth.
+    - path: "src/features/api/**/*.{ts,tsx}"
+      instructions: >
+        Check API client code for clear typing, error handling, and stable interfaces.
+        Keep it framework-agnostic and free of UI concerns.
+    - path: "src/features/identity/**/*.{ts,tsx}"
+      instructions: >
+        Treat auth, guest-session, and persistence changes as higher risk. Look for
+        race conditions, stale state, hydration issues, and behavior that can diverge
+        between server and browser environments.
+    - path: "backend/rust-api/**/*.rs"
+      instructions: >
+        Prefer straightforward Rust with clear error handling and test coverage. Flag
+        API boundary leaks, unchecked assumptions, and changes that make future schema
+        evolution harder.
+    - path: "infra/terraform/**/*.{tf,hcl}"
+      instructions: >
+        Flag unsafe defaults, overly broad IAM or network access, missing validation,
+        and changes likely to create configuration drift.
+    - path: "content/**/*"
+      instructions: >
+        Treat content changes as high risk. Flag copied or leaked exam-style content,
+        missing explanations, unstable IDs, schema drift, and awsSourceUrls that are
+        not official docs.aws.amazon.com links.
+
+chat:
+  auto_reply: true
