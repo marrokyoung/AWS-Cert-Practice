@@ -18,6 +18,8 @@ export class ApiClientError extends Error {
   }
 }
 
+
+/** Read and normalize the configured API base URL for browser requests. */
 function getBaseUrl(): string {
   const raw = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!raw) {
@@ -30,6 +32,7 @@ function getBaseUrl(): string {
   return raw.replace(/\/+$/, "");
 }
 
+/** Perform a JSON API request and normalize failures into ApiClientError. */
 async function jsonFetch<T>(
   path: string,
   options?: RequestInit,

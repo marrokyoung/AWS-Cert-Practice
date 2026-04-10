@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { useSessionStore } from "../src/features/identity/store";
 
+/** Snapshot of the initial Zustand state used to isolate tests. */
 const initialState = useSessionStore.getState();
 
 beforeEach(() => {

@@ -40,15 +40,18 @@ function resetMocks() {
   mockResponse = null;
 }
 
+/** Configure the fetch mock to return a successful JSON response. */
 function okResponse(body: unknown) {
   resetMocks();
   mockResponse = { ok: true, status: 200, json: async () => body };
 }
 
+/** Configure the fetch mock to return an error response with a JSON body. */
 function errorResponse(status: number, body: unknown) {
   mockResponse = { ok: false, status, json: async () => body };
 }
 
+/** Configure the fetch mock to return an error response without valid JSON. */
 function errorResponseNoBody(status: number) {
   mockResponse = {
     ok: false,
