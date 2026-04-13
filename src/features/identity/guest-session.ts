@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Guest session continuity boundary.
  *
