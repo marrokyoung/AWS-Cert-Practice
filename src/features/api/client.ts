@@ -18,7 +18,6 @@ export class ApiClientError extends Error {
   }
 }
 
-
 /** Read and normalize the configured API base URL for browser requests. */
 function getBaseUrl(): string {
   const raw = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -37,7 +36,9 @@ async function jsonFetch<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const url = `${getBaseUrl()}${path}`;
+  // Ensure path starts with "/" so the URL is well-formed.
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${getBaseUrl()}${normalizedPath}`;
 
   let res: Response;
   try {

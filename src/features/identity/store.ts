@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from "zustand";
 
 /** Lifecycle states for guest-session bootstrap in the browser. */
