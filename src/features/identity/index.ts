@@ -8,7 +8,6 @@
 export {
   bootstrapGuestSession,
   readStoredClientId,
-  resolveClientId,
 } from "./guest-session";
 export type { GuestSession } from "./guest-session";
 
