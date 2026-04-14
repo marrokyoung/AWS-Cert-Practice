@@ -33,12 +33,11 @@ export function readStoredClientId(): string | null {
 
 /** Persist a clientId to localStorage. */
 export function writeStoredClientId(clientId: string): void {
-  localStorage.setItem(STORAGE_KEY, clientId);
-}
-
-/** Get or create a stable anonymous clientId. */
-export function resolveClientId(stored: string | null): string {
-  return stored ?? crypto.randomUUID();
+  try {
+    localStorage.setItem(STORAGE_KEY, clientId);
+  } catch {
+    // Persistence is best-effort; the in-memory session can still initialize.
+  }
 }
 
 /**
@@ -53,13 +52,21 @@ export function resolveClientId(stored: string | null): string {
  */
 export async function bootstrapGuestSession(): Promise<GuestSession> {
   const stored = readStoredClientId();
-  const clientId = resolveClientId(stored);
+
+  if (stored) {
+    const response = await createGuestSession({ clientId: stored });
+    return {
+      clientId: stored,
+      sessionId: response.sessionId,
+      expiresAt: response.expiresAt,
+    };
+  }
+
+  const clientId = crypto.randomUUID();
   const response = await createGuestSession({ clientId });
 
-  // Persist clientId on first visit (or if storage was cleared).
-  if (!stored) {
-    writeStoredClientId(clientId);
-  }
+  // Persist only newly generated clientIds; never rewrite stored values.
+  writeStoredClientId(clientId);
 
   return {
     clientId,

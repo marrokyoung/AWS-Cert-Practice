@@ -6,11 +6,13 @@ import test from "node:test";
 // ---------------------------------------------------------------------------
 
 const storage = new Map<string, string>();
+let throwOnSetItem = false;
 
 // @ts-expect-error -- minimal localStorage mock
 globalThis.localStorage = {
   getItem: (key: string) => storage.get(key) ?? null,
   setItem: (key: string, value: string) => {
+    if (throwOnSetItem) throw new DOMException("Storage unavailable", "QuotaExceededError");
     storage.set(key, value);
   },
   removeItem: (key: string) => {
@@ -39,7 +41,6 @@ process.env.NEXT_PUBLIC_API_BASE_URL = "https://api.example.com";
 const {
   readStoredClientId,
   writeStoredClientId,
-  resolveClientId,
   bootstrapGuestSession,
   // eslint-disable-next-line @typescript-eslint/no-require-imports
 } = require("../src/features/identity/guest-session") as typeof import("../src/features/identity/guest-session");
@@ -53,6 +54,7 @@ const STORAGE_KEY = "aws-cert-practice.clientId.v1";
 function resetStorage() {
   storage.clear();
   fetchCallCount = 0;
+  throwOnSetItem = false;
 }
 
 /** Produce an ISO timestamp safely in the future for bootstrap tests. */
@@ -91,16 +93,12 @@ test("writeStoredClientId persists to localStorage", () => {
   assert.equal(storage.get(STORAGE_KEY), "client-xyz");
 });
 
-// ---------------------------------------------------------------------------
-// resolveClientId
-// ---------------------------------------------------------------------------
+test("writeStoredClientId does not throw when localStorage write fails", () => {
+  resetStorage();
+  throwOnSetItem = true;
 
-test("resolveClientId reuses existing clientId", () => {
-  assert.equal(resolveClientId("existing"), "existing");
-});
-
-test("resolveClientId generates UUID when no stored clientId", () => {
-  assert.equal(resolveClientId(null), "mock-uuid-1234");
+  assert.doesNotThrow(() => writeStoredClientId("client-xyz"));
+  assert.equal(storage.has(STORAGE_KEY), false);
 });
 
 // ---------------------------------------------------------------------------
@@ -141,6 +139,25 @@ test("bootstrapGuestSession generates and persists clientId on first visit", asy
   assert.equal(fetchCallCount, 1);
   // clientId should be persisted for future visits.
   assert.equal(storage.get(STORAGE_KEY), "mock-uuid-1234");
+});
+
+test("bootstrapGuestSession succeeds when clientId persistence fails", async () => {
+  resetStorage();
+  throwOnSetItem = true;
+
+  const newExpiry = futureDate();
+  mockFetchResponse = {
+    ok: true,
+    status: 200,
+    json: async () => ({ sessionId: "s-fresh", expiresAt: newExpiry }),
+  };
+
+  const result = await bootstrapGuestSession();
+  assert.equal(result.clientId, "mock-uuid-1234");
+  assert.equal(result.sessionId, "s-fresh");
+  assert.equal(result.expiresAt, newExpiry);
+  assert.equal(fetchCallCount, 1);
+  assert.equal(storage.has(STORAGE_KEY), false);
 });
 
 test("bootstrapGuestSession does not overwrite existing clientId", async () => {
