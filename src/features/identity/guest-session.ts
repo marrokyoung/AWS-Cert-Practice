@@ -63,10 +63,12 @@ export async function bootstrapGuestSession(): Promise<GuestSession> {
   }
 
   const clientId = crypto.randomUUID();
-  const response = await createGuestSession({ clientId });
 
-  // Persist only newly generated clientIds; never rewrite stored values.
+  // Persist before the async API call so a concurrent bootstrap reads
+  // the same clientId instead of minting a second one.
   writeStoredClientId(clientId);
+
+  const response = await createGuestSession({ clientId });
 
   return {
     clientId,
