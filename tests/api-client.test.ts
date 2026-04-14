@@ -9,11 +9,19 @@ let lastFetchUrl: string | undefined;
 let lastFetchOptions: RequestInit | undefined;
 let mockResponse: { ok: boolean; status: number; json: () => Promise<unknown> } | null = null;
 let mockFetchError: Error | null = null;
+let mockFetchNeverResolves = false;
 
 // @ts-expect-error -- assigning a mock to the global fetch
 globalThis.fetch = async (input: string | URL | Request, init?: RequestInit) => {
   lastFetchUrl = typeof input === "string" ? input : input.toString();
   lastFetchOptions = init;
+  if (mockFetchNeverResolves) {
+    return await new Promise<Response>((_, reject) => {
+      init?.signal?.addEventListener("abort", () => {
+        reject(new DOMException("The operation was aborted.", "AbortError"));
+      });
+    });
+  }
   if (mockFetchError) throw mockFetchError;
   return mockResponse!;
 };
@@ -37,7 +45,9 @@ const {
 
 function resetMocks() {
   mockFetchError = null;
+  mockFetchNeverResolves = false;
   mockResponse = null;
+  delete process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
 }
 
 /** Configure the fetch mock to return a successful JSON response. */
@@ -158,6 +168,39 @@ test("network failure throws ApiClientError with status 0", async () => {
   });
 
   mockFetchError = null;
+});
+
+test("request timeout throws ApiClientError with status 0", async () => {
+  resetMocks();
+  mockFetchNeverResolves = true;
+  process.env.NEXT_PUBLIC_API_TIMEOUT_MS = "1";
+
+  await assert.rejects(() => getHealth(), (err: unknown) => {
+    assert.ok(err instanceof ApiClientError);
+    assert.equal(err.status, 0);
+    assert.equal(err.apiError?.code, "TIMEOUT");
+    assert.match(err.apiError?.message ?? "", /timed out/);
+    return true;
+  });
+});
+
+test("successful response with invalid JSON throws ApiClientError", async () => {
+  resetMocks();
+  mockResponse = {
+    ok: true,
+    status: 200,
+    json: async () => {
+      throw new Error("not json");
+    },
+  };
+
+  await assert.rejects(() => getHealth(), (err: unknown) => {
+    assert.ok(err instanceof ApiClientError);
+    assert.equal(err.status, 200);
+    assert.equal(err.apiError?.code, "INVALID_JSON");
+    assert.equal(err.apiError?.details?.cause, "not json");
+    return true;
+  });
 });
 
 test("GET requests do not include Content-Type header", async () => {

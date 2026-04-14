@@ -7,6 +7,8 @@ import type {
   VersionResponse,
 } from "@/contracts/api";
 
+const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
+
 /** Client-side error surfaced when an API call fails. */
 export class ApiClientError extends Error {
   constructor(
@@ -31,6 +33,27 @@ function getBaseUrl(): string {
   return raw.replace(/\/+$/, "");
 }
 
+/** Resolve the request timeout, allowing tests/deployments to override it. */
+function getRequestTimeoutMs(): number {
+  const raw = process.env.NEXT_PUBLIC_API_TIMEOUT_MS;
+  if (!raw) return DEFAULT_REQUEST_TIMEOUT_MS;
+
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0
+    ? parsed
+    : DEFAULT_REQUEST_TIMEOUT_MS;
+}
+
+/** Convert unknown thrown values to a stable error message. */
+function getErrorMessage(err: unknown, fallback: string): string {
+  return err instanceof Error ? err.message : fallback;
+}
+
+/** Detect fetch abort failures across browser and test runtimes. */
+function isAbortError(err: unknown): boolean {
+  return err instanceof Error && err.name === "AbortError";
+}
+
 /** Perform a JSON API request and normalize failures into ApiClientError. */
 async function jsonFetch<T>(
   path: string,
@@ -41,16 +64,41 @@ async function jsonFetch<T>(
   const url = `${getBaseUrl()}${normalizedPath}`;
 
   let res: Response;
+  const timeoutMs = getRequestTimeoutMs();
+  const controller = new AbortController();
+  let didTimeout = false;
+  const timeoutId = setTimeout(() => {
+    didTimeout = true;
+    controller.abort();
+  }, timeoutMs);
+
+  const signal = options?.signal
+    ? AbortSignal.any([controller.signal, options.signal])
+    : controller.signal;
+
   try {
     res = await fetch(url, {
       ...options,
       credentials: "omit",
+      signal,
     });
   } catch (err) {
+    const message = getErrorMessage(err, "Network request failed");
+
+    if (didTimeout || isAbortError(err)) {
+      throw new ApiClientError(0, {
+        code: didTimeout ? "TIMEOUT" : "REQUEST_ABORTED",
+        message: didTimeout
+          ? `API request timed out after ${timeoutMs}ms`
+          : message,
+        details: { cause: message },
+      });
+    }
+
     // Network-level failures (DNS, offline, CORS) surface as status 0.
-    const message =
-      err instanceof Error ? err.message : "Network request failed";
     throw new ApiClientError(0, { code: "NETWORK_ERROR", message });
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (!res.ok) {
@@ -63,7 +111,16 @@ async function jsonFetch<T>(
     throw new ApiClientError(res.status, apiError);
   }
 
-  return (await res.json()) as T;
+  try {
+    return (await res.json()) as T;
+  } catch (err) {
+    const message = getErrorMessage(err, "Response body is not valid JSON");
+    throw new ApiClientError(res.status, {
+      code: "INVALID_JSON",
+      message: "API response body was not valid JSON",
+      details: { cause: message },
+    });
+  }
 }
 
 /** GET /health */
