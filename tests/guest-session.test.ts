@@ -29,10 +29,12 @@ Object.defineProperty(globalThis.crypto, "randomUUID", {
 
 let fetchCallCount = 0;
 let mockFetchResponse: { ok: boolean; status: number; json: () => Promise<unknown> };
+let fetchGate: Promise<void> | null = null;
 
 // @ts-expect-error -- mock fetch
 globalThis.fetch = async () => {
   fetchCallCount++;
+  if (fetchGate) await fetchGate;
   return mockFetchResponse;
 };
 
@@ -55,6 +57,7 @@ function resetStorage() {
   storage.clear();
   fetchCallCount = 0;
   throwOnSetItem = false;
+  fetchGate = null;
 }
 
 /** Produce an ISO timestamp safely in the future for bootstrap tests. */
@@ -172,6 +175,38 @@ test("bootstrapGuestSession does not overwrite existing clientId", async () => {
 
   await bootstrapGuestSession();
   assert.equal(storage.get(STORAGE_KEY), "existing-client");
+});
+
+test("concurrent first-boot calls reuse the same generated clientId", async () => {
+  resetStorage();
+
+  const newExpiry = futureDate();
+  mockFetchResponse = {
+    ok: true,
+    status: 200,
+    json: async () => ({ sessionId: "s-concurrent", expiresAt: newExpiry }),
+  };
+
+  // Gate fetch so both bootstrap calls start before either resolves.
+  let releaseFetch!: () => void;
+  fetchGate = new Promise<void>((resolve) => {
+    releaseFetch = resolve;
+  });
+
+  const promiseA = bootstrapGuestSession();
+  const promiseB = bootstrapGuestSession();
+
+  // Both calls have started; release fetch to let them complete.
+  releaseFetch();
+
+  const [resultA, resultB] = await Promise.all([promiseA, promiseB]);
+
+  assert.equal(resultA.clientId, "mock-uuid-1234");
+  assert.equal(resultB.clientId, "mock-uuid-1234");
+  assert.equal(resultA.clientId, resultB.clientId);
+  assert.equal(storage.get(STORAGE_KEY), "mock-uuid-1234");
+  // Both calls hit the API — one as new, one reading the stored value.
+  assert.equal(fetchCallCount, 2);
 });
 
 test("bootstrapGuestSession throws on API failure", async () => {
