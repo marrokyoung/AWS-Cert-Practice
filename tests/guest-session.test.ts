@@ -22,7 +22,7 @@ globalThis.localStorage = {
 
 // Override randomUUID on the existing crypto object.
 Object.defineProperty(globalThis.crypto, "randomUUID", {
-  value: () => "mock-uuid-1234",
+  value: () => "00000000-0000-4000-8000-000000000001",
   writable: true,
   configurable: true,
 });
@@ -82,8 +82,22 @@ test("readStoredClientId returns null for empty string", () => {
 
 test("readStoredClientId returns valid clientId", () => {
   resetStorage();
-  storage.set(STORAGE_KEY, "client-abc");
-  assert.equal(readStoredClientId(), "client-abc");
+  storage.set(STORAGE_KEY, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+  assert.equal(readStoredClientId(), "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+});
+
+test("readStoredClientId returns null and clears storage for non-UUID value", () => {
+  resetStorage();
+  storage.set(STORAGE_KEY, "<script>alert(1)</script>");
+  assert.equal(readStoredClientId(), null);
+  assert.equal(storage.has(STORAGE_KEY), false);
+});
+
+test("readStoredClientId returns null and clears storage for malformed UUID", () => {
+  resetStorage();
+  storage.set(STORAGE_KEY, "not-a-valid-uuid-at-all");
+  assert.equal(readStoredClientId(), null);
+  assert.equal(storage.has(STORAGE_KEY), false);
 });
 
 // ---------------------------------------------------------------------------
@@ -92,15 +106,15 @@ test("readStoredClientId returns valid clientId", () => {
 
 test("writeStoredClientId persists to localStorage", () => {
   resetStorage();
-  writeStoredClientId("client-xyz");
-  assert.equal(storage.get(STORAGE_KEY), "client-xyz");
+  writeStoredClientId("cccccccc-cccc-4ccc-8ccc-cccccccccccc");
+  assert.equal(storage.get(STORAGE_KEY), "cccccccc-cccc-4ccc-8ccc-cccccccccccc");
 });
 
 test("writeStoredClientId does not throw when localStorage write fails", () => {
   resetStorage();
   throwOnSetItem = true;
 
-  assert.doesNotThrow(() => writeStoredClientId("client-xyz"));
+  assert.doesNotThrow(() => writeStoredClientId("cccccccc-cccc-4ccc-8ccc-cccccccccccc"));
   assert.equal(storage.has(STORAGE_KEY), false);
 });
 
@@ -110,7 +124,7 @@ test("writeStoredClientId does not throw when localStorage write fails", () => {
 
 test("bootstrapGuestSession always calls API even with stored clientId", async () => {
   resetStorage();
-  storage.set(STORAGE_KEY, "c-1");
+  storage.set(STORAGE_KEY, "11111111-1111-4111-8111-111111111111");
 
   const newExpiry = futureDate();
   mockFetchResponse = {
@@ -120,7 +134,7 @@ test("bootstrapGuestSession always calls API even with stored clientId", async (
   };
 
   const result = await bootstrapGuestSession();
-  assert.equal(result.clientId, "c-1");
+  assert.equal(result.clientId, "11111111-1111-4111-8111-111111111111");
   assert.equal(result.sessionId, "s-new");
   assert.equal(result.expiresAt, newExpiry);
   assert.equal(fetchCallCount, 1, "should always call API");
@@ -137,11 +151,11 @@ test("bootstrapGuestSession generates and persists clientId on first visit", asy
   };
 
   const result = await bootstrapGuestSession();
-  assert.equal(result.clientId, "mock-uuid-1234");
+  assert.equal(result.clientId, "00000000-0000-4000-8000-000000000001");
   assert.equal(result.sessionId, "s-fresh");
   assert.equal(fetchCallCount, 1);
   // clientId should be persisted for future visits.
-  assert.equal(storage.get(STORAGE_KEY), "mock-uuid-1234");
+  assert.equal(storage.get(STORAGE_KEY), "00000000-0000-4000-8000-000000000001");
 });
 
 test("bootstrapGuestSession succeeds when clientId persistence fails", async () => {
@@ -156,7 +170,7 @@ test("bootstrapGuestSession succeeds when clientId persistence fails", async () 
   };
 
   const result = await bootstrapGuestSession();
-  assert.equal(result.clientId, "mock-uuid-1234");
+  assert.equal(result.clientId, "00000000-0000-4000-8000-000000000001");
   assert.equal(result.sessionId, "s-fresh");
   assert.equal(result.expiresAt, newExpiry);
   assert.equal(fetchCallCount, 1);
@@ -165,7 +179,7 @@ test("bootstrapGuestSession succeeds when clientId persistence fails", async () 
 
 test("bootstrapGuestSession does not overwrite existing clientId", async () => {
   resetStorage();
-  storage.set(STORAGE_KEY, "existing-client");
+  storage.set(STORAGE_KEY, "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
 
   mockFetchResponse = {
     ok: true,
@@ -174,7 +188,7 @@ test("bootstrapGuestSession does not overwrite existing clientId", async () => {
   };
 
   await bootstrapGuestSession();
-  assert.equal(storage.get(STORAGE_KEY), "existing-client");
+  assert.equal(storage.get(STORAGE_KEY), "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee");
 });
 
 test("concurrent first-boot calls reuse the same generated clientId", async () => {
@@ -201,10 +215,10 @@ test("concurrent first-boot calls reuse the same generated clientId", async () =
 
   const [resultA, resultB] = await Promise.all([promiseA, promiseB]);
 
-  assert.equal(resultA.clientId, "mock-uuid-1234");
-  assert.equal(resultB.clientId, "mock-uuid-1234");
+  assert.equal(resultA.clientId, "00000000-0000-4000-8000-000000000001");
+  assert.equal(resultB.clientId, "00000000-0000-4000-8000-000000000001");
   assert.equal(resultA.clientId, resultB.clientId);
-  assert.equal(storage.get(STORAGE_KEY), "mock-uuid-1234");
+  assert.equal(storage.get(STORAGE_KEY), "00000000-0000-4000-8000-000000000001");
   // Both calls hit the API — one as new, one reading the stored value.
   assert.equal(fetchCallCount, 2);
 });

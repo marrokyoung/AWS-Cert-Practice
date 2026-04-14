@@ -12,6 +12,11 @@
 import { createGuestSession } from "@/features/api/client";
 
 const STORAGE_KEY = "aws-cert-practice.clientId.v1";
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isValidClientId(value: string): boolean {
+  return UUID_RE.test(value);
+}
 
 /** Result returned to the caller after a successful bootstrap. */
 export interface GuestSession {
@@ -24,8 +29,12 @@ export interface GuestSession {
 export function readStoredClientId(): string | null {
   try {
     const value = localStorage.getItem(STORAGE_KEY);
-    if (typeof value === "string" && value !== "") return value;
-    return null;
+    if (typeof value !== "string" || value === "") return null;
+    if (!isValidClientId(value)) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch { /* best-effort */ }
+      return null;
+    }
+    return value;
   } catch {
     return null;
   }
