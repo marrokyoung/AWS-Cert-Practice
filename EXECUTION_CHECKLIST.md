@@ -311,8 +311,8 @@ Step goal: build the app shell and design tokens without coupling the layout to 
 Known limitations and future considerations:
 
 - The header uses a single horizontal row with non-shrinking items. On narrow mobile viewports, long cert labels (e.g. "Solutions Architect Associate") can crowd the header. A follow-up responsiveness pass should choose a real mobile nav pattern (compact labels, second-row nav, disclosure menu, or drawer).
-- `AppShell` is a full client component for `usePathname()`. If bundle size becomes a concern, split it so only the active-nav/dropdown portion hydrates while the outer shell stays server-rendered.
-- The cert pages (`learn`, `practice`, `exam`) share the same placeholder heading structure. If duplication grows after Step 8/10 adds real UI, consider a small shared page heading helper.
+- `AppShell` is a server component; only `AppHeaderClient` (nav links, cert selector, active state) hydrates on the client.
+- The cert pages use a shared `CertPageHeader` component from `src/components/study/cert-page-header.tsx`.
 
 Step gate:
 
