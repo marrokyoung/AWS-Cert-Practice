@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import { Providers } from "./providers";
-import { AppShell } from "@/components/shell/app-shell";
+import { AppShell } from "@/components/shell";
 import "./globals.css";
 
 const sans = IBM_Plex_Sans({

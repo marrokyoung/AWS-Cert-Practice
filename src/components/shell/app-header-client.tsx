@@ -128,15 +128,23 @@ function CertSelector({ activeCert }: { activeCert: Certification | null }) {
 
   return (
     <details ref={ref} className="group relative shrink-0">
-      <summary className="flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors select-none list-none hover:bg-accent/50 hover:text-foreground [&::-webkit-details-marker]:hidden">
+      <summary
+        aria-haspopup="menu"
+        className="flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors select-none list-none hover:bg-accent/50 hover:text-foreground [&::-webkit-details-marker]:hidden"
+      >
         {label}
         <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
       </summary>
-      <div className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-popover p-1 shadow-md">
+      <div
+        role="menu"
+        aria-label="Certification options"
+        className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-popover p-1 shadow-md"
+      >
         {CERTIFICATIONS.map((cert) => (
           <Link
             key={cert}
             href={`/${cert}/learn`}
+            role="menuitem"
             className={cn(
               "block rounded-md px-3 py-2 text-sm transition-colors",
               cert === activeCert
