@@ -8,9 +8,9 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Current Status
 
-- Completed: Steps `1-6`
-- Next step: `7. UI Foundation`
-- Next branch: `my/ui-shell-foundation`
+- Completed: Steps `1-7`
+- Next step: `8. Home Page Baseline`
+- Next branch: `my/home-baseline`
 
 ## Delivery Guardrails
 
@@ -294,25 +294,31 @@ Branch: `my/ui-shell-foundation`
 
 Step goal: build the app shell and design tokens without coupling the layout to unfinished backend work.
 
-- [ ] Wire up the chosen fonts:
+- [x] Wire up the chosen fonts:
   - `Space Grotesk`
   - `IBM Plex Sans`
   - `IBM Plex Mono`
-- [ ] Add color, spacing, radius, border, and shadow tokens to `globals.css`.
-- [ ] Build the main app shell.
-- [ ] Add top-level navigation placeholders for:
+- [x] Add app font, color, radius, border, and semantic UI tokens to `globals.css`.
+- [x] Build the main app shell.
+- [x] Add top-level navigation placeholders for:
   - cert selection
   - Review
   - Progress
   - Settings
-- [ ] Build `src/components/study/study-card-shell.tsx`.
-- [ ] Keep the shell compatible with first-run and returning-user states.
+- [x] Build `src/components/study/study-card-shell.tsx`.
+- [x] Keep the shell compatible with first-run and returning-user states.
+
+Known limitations and future considerations:
+
+- The header uses a single horizontal row with non-shrinking items. On narrow mobile viewports, long cert labels (e.g. "Solutions Architect Associate") can crowd the header. A follow-up responsiveness pass should choose a real mobile nav pattern (compact labels, second-row nav, disclosure menu, or drawer).
+- `AppShell` is a server component; only `AppHeaderClient` (nav links, cert selector, active state) hydrates on the client.
+- The cert pages use a shared `CertPageHeader` component from `src/components/study/cert-page-header.tsx`.
 
 Step gate:
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm build`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm build`
 
 ### 8. Home Page Baseline
 

@@ -1,3 +1,4 @@
+import { CertPageHeader } from "@/components/study";
 import { CERTIFICATIONS } from "@/types/shared";
 
 export const dynamicParams = false;
@@ -14,9 +15,10 @@ export default async function PracticePage({
   const { cert } = await params;
 
   return (
-    <main>
-      <h1>Practice - {cert}</h1>
-      <p>Focused question drilling coming soon.</p>
-    </main>
+    <CertPageHeader
+      cert={cert}
+      title="Practice"
+      description="Focused question drilling coming soon."
+    />
   );
 }
