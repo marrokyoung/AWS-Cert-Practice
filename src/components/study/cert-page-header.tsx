@@ -1,7 +1,7 @@
 import { CERT_LABELS, type Certification } from "@/types/shared";
 
 function isCertification(value: string): value is Certification {
-  return value in CERT_LABELS;
+  return Object.hasOwn(CERT_LABELS, value);
 }
 
 type CertPageHeaderProps = {
