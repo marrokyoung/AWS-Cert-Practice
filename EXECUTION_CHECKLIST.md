@@ -8,9 +8,9 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Current Status
 
-- Completed: Steps `1-7`
-- Next step: `8. Home Page Baseline`
-- Next branch: `my/home-baseline`
+- Completed: Steps `1-8`
+- Next step: `9. Seed Content`
+- Next branch: `my/seed-sprint1-baseline`
 
 ## Delivery Guardrails
 
@@ -326,23 +326,23 @@ Branch: `my/home-baseline`
 
 Step goal: make the home page useful for first-run and returning-user placeholder states before real progress data exists.
 
-- [ ] Implement first-run state:
+- [x] Implement first-run state:
   - cert selection
   - `Start Learning` primary CTA
-- [ ] Implement returning-user placeholder states:
+- [x] Implement returning-user placeholder states:
   - `Review Due Items`
   - `Resume Session`
-- [ ] Show static placeholder summaries for:
+- [x] Show static placeholder summaries for:
   - due review
   - weak areas
   - recent progress
-- [ ] Keep the home page usable without Cognito login.
+- [x] Keep the home page usable without Cognito login.
 
 Step gate:
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm build`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm build`
 
 ### 9. Seed Content
 

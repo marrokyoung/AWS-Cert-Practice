@@ -12,6 +12,11 @@ export {
 export type { GuestSession } from "./guest-session";
 
 export { useSessionStore } from "./store";
-export type { SessionState, SessionStatus, SessionStore } from "./store";
+export type {
+  SessionState,
+  SessionStatus,
+  SessionStore,
+  SessionVisitState,
+} from "./store";
 
 export { SessionProvider } from "./session-provider";
