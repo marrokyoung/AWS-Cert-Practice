@@ -17,9 +17,10 @@ import {
 const HOME_CERT_STORAGE_KEY = "aws-cert-practice.homeCert.v1";
 
 /**
- * Event dispatched on the window after a successful home-cert write.
- * Lets same-tab subscribers (e.g. useSyncExternalStore) re-read the value,
- * since the native `storage` event only fires for other tabs.
+ * Event dispatched after a home-cert selection attempt.
+ * Lets same-tab subscribers (e.g. useSyncExternalStore) re-read the latest
+ * effective selection, since the native `storage` event only fires for
+ * other tabs.
  */
 export const HOME_CERT_CHANGE_EVENT = "home-cert:change";
 
@@ -80,7 +81,8 @@ export function readStoredHomeCert(): Certification {
  *
  * Always records the choice in memory so the current-session selection
  * applies even if localStorage is not writable. A change event is
- * dispatched so `useSyncExternalStore` subscribers re-read the value.
+ * dispatched after the write attempt so `useSyncExternalStore`
+ * subscribers re-read the latest effective selection.
  */
 export function writeStoredHomeCert(cert: Certification): void {
   inMemoryCert = cert;
