@@ -30,11 +30,14 @@ export const HOME_CERT_FALLBACK: Certification = "CLF-C02";
  * In-memory fallback used when localStorage is unavailable or throws.
  * Ensures a clicked selection still applies for the current browser
  * session even in storage-restricted environments (private mode, quota
- * exceeded, or blocked storage). localStorage remains the source of
- * truth when it works.
+ * exceeded, or blocked storage). A failed write marks the in-memory
+ * selection as authoritative for the rest of the current session so
+ * stale persisted values do not override the user's latest choice.
  */
 let inMemoryCert: Certification | null = null;
+let preferInMemoryCert = false;
 
+/** Narrow an unknown value to a supported certification code. */
 function isCertification(value: unknown): value is Certification {
   return (
     typeof value === "string" &&
@@ -45,11 +48,21 @@ function isCertification(value: unknown): value is Certification {
 /**
  * Read the stored home cert.
  *
- * Prefers a working localStorage value. Falls back to the in-memory
- * selection when storage is missing, threw, or holds an invalid value.
+ * Prefers the in-memory selection after a failed persistence write.
+ * Otherwise, prefers a working localStorage value and falls back to the
+ * in-memory selection when storage is missing, threw, or holds an invalid
+ * value.
  * Returns the fallback cert only when none of the above yields one.
  */
 export function readStoredHomeCert(): Certification {
+  // After a failed write, a later persisted value in this tab could be a
+  // stale survivor rather than a genuinely newer selection. A follow-up
+  // branch can move this key to a versioned payload so cross-tab writes
+  // can be reconciled safely with freshness metadata.
+  if (preferInMemoryCert && inMemoryCert !== null) {
+    return inMemoryCert;
+  }
+
   try {
     const value = localStorage.getItem(HOME_CERT_STORAGE_KEY);
     if (isCertification(value)) return value;
@@ -73,8 +86,10 @@ export function writeStoredHomeCert(cert: Certification): void {
   inMemoryCert = cert;
   try {
     localStorage.setItem(HOME_CERT_STORAGE_KEY, cert);
+    preferInMemoryCert = false;
   } catch {
-    // Persistence is best-effort; in-memory fallback still applies.
+    preferInMemoryCert = true;
+    try { localStorage.removeItem(HOME_CERT_STORAGE_KEY); } catch { /* best-effort */ }
   }
   try {
     window.dispatchEvent(new Event(HOME_CERT_CHANGE_EVENT));
@@ -90,4 +105,5 @@ export function writeStoredHomeCert(cert: Certification): void {
  */
 export function __resetHomeCertInMemoryCacheForTests(): void {
   inMemoryCert = null;
+  preferInMemoryCert = false;
 }

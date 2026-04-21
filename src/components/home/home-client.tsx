@@ -17,6 +17,7 @@ import {
   writeStoredHomeCert,
 } from "./home-cert";
 
+/** Subscribe to same-tab and cross-tab home-cert changes for external-store sync. */
 function subscribeHomeCert(callback: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   window.addEventListener(HOME_CERT_CHANGE_EVENT, callback);
@@ -182,6 +183,7 @@ export function HomeClient() {
   );
 }
 
+/** Render one placeholder summary card on the home dashboard. */
 function SummaryCard({ title, body }: { title: string; body: string }) {
   return (
     <StudyCardShell className="flex flex-col gap-2">

@@ -84,6 +84,39 @@ test("writeStoredHomeCert applies in-memory when localStorage.setItem throws", (
   assert.deepEqual(dispatched, [HOME_CERT_CHANGE_EVENT]);
 });
 
+test("failed writes do not let a stale persisted cert override the current selection", () => {
+  storage.set(STORAGE_KEY, "CLF-C02");
+  throwOnSetItem = true;
+
+  writeStoredHomeCert("SAA-C03");
+
+  assert.equal(storage.has(STORAGE_KEY), false);
+  assert.equal(readStoredHomeCert(), "SAA-C03");
+});
+
+test("successful writes restore persisted-value precedence after a failed write", () => {
+  storage.set(STORAGE_KEY, "CLF-C02");
+  throwOnSetItem = true;
+  writeStoredHomeCert("SAA-C03");
+
+  throwOnSetItem = false;
+  writeStoredHomeCert("CLF-C02");
+
+  storage.set(STORAGE_KEY, "SAA-C03");
+  assert.equal(readStoredHomeCert(), "SAA-C03");
+});
+
+test("chained failed writes keep the latest in-memory selection", () => {
+  storage.set(STORAGE_KEY, "CLF-C02");
+  throwOnSetItem = true;
+
+  writeStoredHomeCert("SAA-C03");
+  writeStoredHomeCert("CLF-C02");
+
+  assert.equal(storage.has(STORAGE_KEY), false);
+  assert.equal(readStoredHomeCert(), "CLF-C02");
+});
+
 test("readStoredHomeCert returns in-memory value when getItem throws", () => {
   writeStoredHomeCert("SAA-C03");
   throwOnGetItem = true;
