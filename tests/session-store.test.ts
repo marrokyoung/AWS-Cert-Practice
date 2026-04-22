@@ -46,3 +46,19 @@ test("setError marks store as errored and initialized", () => {
   assert.equal(state.isInitialized, true);
   assert.equal(state.error, "boom");
 });
+
+test("initial visitState is unknown", () => {
+  assert.equal(useSessionStore.getState().visitState, "unknown");
+});
+
+test("setVisitState updates only visitState", () => {
+  useSessionStore.getState().setVisitState("returning");
+  const state = useSessionStore.getState();
+  assert.equal(state.visitState, "returning");
+  assert.equal(state.status, "idle");
+  assert.equal(state.isInitialized, false);
+  assert.equal(state.error, null);
+
+  useSessionStore.getState().setVisitState("first-run");
+  assert.equal(useSessionStore.getState().visitState, "first-run");
+});

@@ -7,7 +7,7 @@
     "prebuild": "pnpm content:build",
     "build": "next build",
     "lint": "eslint . --max-warnings 0",
-    "test": "tsx --test tests/content-pipeline.test.ts tests/api-client.test.ts tests/guest-session.test.ts tests/session-store.test.ts",
+    "test": "tsx --test",
     "typecheck": "tsc --noEmit",
     "content:build": "tsx scripts/build-content.ts"
   },
