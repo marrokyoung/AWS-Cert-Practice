@@ -1,0 +1,28 @@
+{
+  "id": "saa-c03-secure-architectures-ebs-encryption-coverage",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "EBS Encryption Coverage",
+  "difficulty": "intermediate",
+  "type": "multiple-choice",
+  "stem": "When EBS encryption is enabled on a volume, which data does the encryption protect?",
+  "options": [
+    { "id": "a", "text": "The volume's data at rest, snapshots created from the volume, any volumes later created from those snapshots, and the data moving between the volume and the instance, using KMS-backed data keys." },
+    { "id": "b", "text": "Only the volume data at rest; snapshots and in-flight data between the volume and instance remain unencrypted." },
+    { "id": "c", "text": "Only snapshots created from the volume; the live volume itself is not encrypted." },
+    { "id": "d", "text": "Only the in-flight data between the volume and the instance; data at rest remains in plaintext." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "EBS encryption uses KMS-backed data keys and protects the volume's data at rest, any snapshots created from that volume, any volumes later created from those encrypted snapshots, and the data moving between the volume and the EC2 instance.",
+  "distractorExplanations": {
+    "b": "Snapshots and the data moving between the volume and the instance are also encrypted. Coverage is not limited to data at rest on the volume.",
+    "c": "The live volume itself is encrypted as well. Coverage is not limited to snapshots.",
+    "d": "Data at rest on the volume is encrypted as well. Coverage is not limited to in-flight data."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/ebs/latest/userguide/how-ebs-encryption-works.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["ebs", "encryption", "kms", "data-at-rest"],
+  "status": "ready"
+}

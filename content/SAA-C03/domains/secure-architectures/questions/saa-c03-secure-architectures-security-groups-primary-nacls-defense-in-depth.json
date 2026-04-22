@@ -1,0 +1,28 @@
+{
+  "id": "saa-c03-secure-architectures-security-groups-primary-nacls-defense-in-depth",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "Layering Security Groups and Network ACLs",
+  "difficulty": "intermediate",
+  "type": "multiple-choice",
+  "stem": "How does AWS recommend layering security groups and network ACLs for traffic control inside a VPC?",
+  "options": [
+    { "id": "a", "text": "Use security groups as the primary network access control and rely on network ACLs as a coarser-grained, subnet-level defense in depth." },
+    { "id": "b", "text": "Use network ACLs as the primary access control and treat security groups as optional helpers." },
+    { "id": "c", "text": "Apply identical rules in both security groups and network ACLs so the two controls always agree exactly." },
+    { "id": "d", "text": "Choose either security groups or network ACLs for a given workload because using both at once is discouraged." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "AWS positions security groups as the primary network access mechanism in a VPC because they are stateful and applied close to resources. Network ACLs serve as a coarser, subnet-level guardrail that adds defense in depth on top of the security group layer.",
+  "distractorExplanations": {
+    "b": "AWS positions security groups, not network ACLs, as the primary access control in a VPC.",
+    "c": "Mirroring rules across both layers is unnecessary and obscures intent. Each layer is meant to enforce its own appropriate policy at its own scope.",
+    "d": "The two controls are designed to be used together as defense in depth, not as alternatives to one another."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["vpc", "security-groups", "network-acls", "defense-in-depth"],
+  "status": "ready"
+}

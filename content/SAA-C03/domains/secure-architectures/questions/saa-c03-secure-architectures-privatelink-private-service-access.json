@@ -1,0 +1,29 @@
+{
+  "id": "saa-c03-secure-architectures-privatelink-private-service-access",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "Private Access to AWS Services with PrivateLink",
+  "difficulty": "intermediate",
+  "type": "multiple-choice",
+  "stem": "Resources in a private subnet must reach an AWS service that integrates with AWS PrivateLink, and the traffic must stay on the AWS network without traversing an internet gateway or NAT. Which AWS feature provides this access pattern?",
+  "options": [
+    { "id": "a", "text": "AWS PrivateLink, which exposes the service through an interface VPC endpoint reachable from the VPC over the AWS network." },
+    { "id": "b", "text": "An internet gateway attached to the VPC, which provides a private-only path to AWS services." },
+    { "id": "c", "text": "A NAT gateway, which gives private subnet workloads a private path to AWS services without leaving the VPC." },
+    { "id": "d", "text": "AWS Direct Connect, which is required for any private call from a private subnet to an AWS service." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "AWS PrivateLink lets resources in a VPC reach supported AWS services through interface VPC endpoints over the AWS network. Traffic to a service that integrates with PrivateLink does not need to traverse an internet gateway or NAT.",
+  "distractorExplanations": {
+    "b": "An internet gateway provides outbound and inbound internet access for a VPC. It is not a private path to an AWS service.",
+    "c": "A NAT gateway lets private subnet workloads reach the public internet for outbound traffic. It does not create a private endpoint to an AWS service.",
+    "d": "Direct Connect addresses dedicated network connectivity from on-premises networks to AWS. It is not required for private VPC-to-service access."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html",
+    "https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-aws-services.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["vpc", "privatelink", "interface-endpoint", "private-access"],
+  "status": "ready"
+}

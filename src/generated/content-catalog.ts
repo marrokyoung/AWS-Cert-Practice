@@ -8,7 +8,480 @@ import type { Question } from "../types/question";
 import type { ConceptCard } from "../types/concept";
 import type { Certification } from "../types/shared";
 
-export const questions: Question[] = [];
+export const questions: Question[] = [
+  {
+    "id": "saa-c03-secure-architectures-acm-tls-certificates",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "TLS Certificate Management with ACM",
+    "difficulty": "foundational",
+    "type": "multiple-choice",
+    "stem": "Which AWS service is responsible for issuing, storing, and renewing SSL/TLS certificates for use with integrated AWS services?",
+    "options": [
+      {
+        "id": "a",
+        "text": "AWS Certificate Manager (ACM)."
+      },
+      {
+        "id": "b",
+        "text": "AWS Key Management Service (KMS)."
+      },
+      {
+        "id": "c",
+        "text": "AWS Secrets Manager."
+      },
+      {
+        "id": "d",
+        "text": "AWS IAM Identity Center."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AWS Certificate Manager (ACM) is the service that issues, stores, and renews SSL/TLS certificates for use with integrated AWS services such as load balancers, CloudFront, and API Gateway.",
+    "distractorExplanations": {
+      "b": "KMS manages cryptographic keys for encryption and signing. It does not handle SSL/TLS certificate lifecycle.",
+      "c": "Secrets Manager stores arbitrary application secrets such as database passwords and API keys. It is not the TLS certificate authority service.",
+      "d": "IAM Identity Center centralizes workforce identity and access. It does not issue or renew TLS certificates."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "acm",
+      "tls",
+      "certificates",
+      "encryption-in-transit"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-cross-account-assume-role",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Cross-Account Access with AssumeRole",
+    "difficulty": "intermediate",
+    "type": "multiple-choice",
+    "stem": "Principals in Account A need short-lived access to resources in Account B. Which approach matches the AWS STS pattern for cross-account access?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Define a role in Account B whose trust policy allows principals from Account A, and have those principals call AssumeRole to obtain temporary credentials."
+      },
+      {
+        "id": "b",
+        "text": "Create a long-lived IAM user in Account B and share its access key and secret access key with Account A."
+      },
+      {
+        "id": "c",
+        "text": "Use Account B's root user credentials directly from Account A whenever cross-account access is required."
+      },
+      {
+        "id": "d",
+        "text": "Call AssumeRole against a role in Account A and then use those credentials directly against Account B without changing any policy in Account B."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AssumeRole returns temporary credentials. Cross-account access is established by defining a role in the target account whose trust policy permits the calling account's principals to assume it, after which those principals receive short-lived credentials valid in the target account.",
+    "distractorExplanations": {
+      "b": "Sharing long-term IAM user credentials across accounts contradicts the temporary-credentials recommendation and weakens auditability of who acted in Account B.",
+      "c": "Cross-account access never uses the target account's root user; this also contradicts root user protection guidance.",
+      "d": "Assuming a role in Account A alone does not grant access in Account B. For the AssumeRole pattern in this question, principals from Account A must assume a role defined in Account B whose trust policy permits them."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "sts",
+      "assume-role",
+      "cross-account",
+      "trust-policy"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-ebs-encryption-coverage",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "EBS Encryption Coverage",
+    "difficulty": "intermediate",
+    "type": "multiple-choice",
+    "stem": "When EBS encryption is enabled on a volume, which data does the encryption protect?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The volume's data at rest, snapshots created from the volume, any volumes later created from those snapshots, and the data moving between the volume and the instance, using KMS-backed data keys."
+      },
+      {
+        "id": "b",
+        "text": "Only the volume data at rest; snapshots and in-flight data between the volume and instance remain unencrypted."
+      },
+      {
+        "id": "c",
+        "text": "Only snapshots created from the volume; the live volume itself is not encrypted."
+      },
+      {
+        "id": "d",
+        "text": "Only the in-flight data between the volume and the instance; data at rest remains in plaintext."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "EBS encryption uses KMS-backed data keys and protects the volume's data at rest, any snapshots created from that volume, any volumes later created from those encrypted snapshots, and the data moving between the volume and the EC2 instance.",
+    "distractorExplanations": {
+      "b": "Snapshots and the data moving between the volume and the instance are also encrypted. Coverage is not limited to data at rest on the volume.",
+      "c": "The live volume itself is encrypted as well. Coverage is not limited to snapshots.",
+      "d": "Data at rest on the volume is encrypted as well. Coverage is not limited to in-flight data."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/ebs/latest/userguide/how-ebs-encryption-works.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "ebs",
+      "encryption",
+      "kms",
+      "data-at-rest"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-human-federation-temporary-credentials",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Human Identity Federation",
+    "difficulty": "intermediate",
+    "type": "multiple-choice",
+    "stem": "What does AWS recommend for human users that need access to AWS accounts?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Have humans sign in through federation or IAM Identity Center so they obtain temporary credentials rather than long-term IAM user credentials."
+      },
+      {
+        "id": "b",
+        "text": "Create a long-lived IAM user with an access key for each engineer and require them to rotate the key on a schedule."
+      },
+      {
+        "id": "c",
+        "text": "Share a single root user password across the team so administrators always have full access."
+      },
+      {
+        "id": "d",
+        "text": "Issue console passwords only and disable role assumption to keep the access model uniform."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AWS best practices recommend that human users access AWS through federation or IAM Identity Center, which yields temporary credentials and centralizes identity management instead of relying on long-term IAM user credentials.",
+    "distractorExplanations": {
+      "b": "Long-term IAM user access keys for humans run counter to AWS guidance. Federation with temporary credentials is the recommended pattern, even when keys are rotated.",
+      "c": "Sharing the root user defeats accountability and contradicts the guidance to protect and seldom use the root user.",
+      "d": "Disabling role assumption removes the very mechanism federation relies on, since federated humans typically receive permissions through assumed roles."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "iam",
+      "federation",
+      "iam-identity-center",
+      "temporary-credentials"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-privatelink-private-service-access",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Private Access to AWS Services with PrivateLink",
+    "difficulty": "intermediate",
+    "type": "multiple-choice",
+    "stem": "Resources in a private subnet must reach an AWS service that integrates with AWS PrivateLink, and the traffic must stay on the AWS network without traversing an internet gateway or NAT. Which AWS feature provides this access pattern?",
+    "options": [
+      {
+        "id": "a",
+        "text": "AWS PrivateLink, which exposes the service through an interface VPC endpoint reachable from the VPC over the AWS network."
+      },
+      {
+        "id": "b",
+        "text": "An internet gateway attached to the VPC, which provides a private-only path to AWS services."
+      },
+      {
+        "id": "c",
+        "text": "A NAT gateway, which gives private subnet workloads a private path to AWS services without leaving the VPC."
+      },
+      {
+        "id": "d",
+        "text": "AWS Direct Connect, which is required for any private call from a private subnet to an AWS service."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AWS PrivateLink lets resources in a VPC reach supported AWS services through interface VPC endpoints over the AWS network. Traffic to a service that integrates with PrivateLink does not need to traverse an internet gateway or NAT.",
+    "distractorExplanations": {
+      "b": "An internet gateway provides outbound and inbound internet access for a VPC. It is not a private path to an AWS service.",
+      "c": "A NAT gateway lets private subnet workloads reach the public internet for outbound traffic. It does not create a private endpoint to an AWS service.",
+      "d": "Direct Connect addresses dedicated network connectivity from on-premises networks to AWS. It is not required for private VPC-to-service access."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html",
+      "https://docs.aws.amazon.com/vpc/latest/privatelink/privatelink-access-aws-services.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "vpc",
+      "privatelink",
+      "interface-endpoint",
+      "private-access"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-root-user-protection",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Root User Protection",
+    "difficulty": "foundational",
+    "type": "multiple-choice",
+    "stem": "Which practice best follows AWS guidance for protecting the AWS account root user?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Enable MFA on the root user, avoid creating long-term access keys for it, and reserve it only for tasks that genuinely require root."
+      },
+      {
+        "id": "b",
+        "text": "Generate a long-term root user access key and embed it in deployment scripts so automation always runs with the highest privileges."
+      },
+      {
+        "id": "c",
+        "text": "Use the root user for routine administrative work because it bypasses normal IAM policy evaluation."
+      },
+      {
+        "id": "d",
+        "text": "Disable MFA on the root user to avoid being locked out if the MFA device is lost."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "The AWS account root user is highly privileged. AWS guidance is to enable MFA on the root user, avoid creating long-term root access keys, and reserve the root user for the small number of tasks that truly require it.",
+    "distractorExplanations": {
+      "b": "Long-term root user access keys should be avoided. Embedding them in deployment scripts widens the blast radius and contradicts AWS guidance to prefer temporary credentials and IAM roles.",
+      "c": "Routine administrative work should be performed by IAM identities or federated principals with least privilege, not by the root user.",
+      "d": "AWS guidance is to enable MFA on the root user, not disable it. Lockout risk is addressed through documented recovery procedures, not by removing MFA."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html",
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "iam",
+      "root-user",
+      "mfa",
+      "best-practices"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-secrets-manager-application-secrets",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Application Secret Storage",
+    "difficulty": "foundational",
+    "type": "multiple-choice",
+    "stem": "Where should an application running in AWS store the database password it needs at runtime, following AWS best practices?",
+    "options": [
+      {
+        "id": "a",
+        "text": "In AWS Secrets Manager, where the secret is encrypted at rest with KMS, retrieved over TLS, and supports automatic rotation."
+      },
+      {
+        "id": "b",
+        "text": "In a public S3 bucket so all application instances can read it without additional permissions."
+      },
+      {
+        "id": "c",
+        "text": "Hardcoded in the application's source code so the value is always available alongside the deployment."
+      },
+      {
+        "id": "d",
+        "text": "In an unencrypted environment variable baked into the container image."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AWS best practices place application secrets in AWS Secrets Manager. Secrets Manager encrypts secrets at rest using KMS, returns them over TLS, and supports automatic rotation, which is far stronger than ad hoc storage approaches.",
+    "distractorExplanations": {
+      "b": "A public S3 bucket exposes the secret to anyone on the internet and violates the principle of restricting access to secrets to only the principals that need them.",
+      "c": "Hardcoded secrets leak with the source code and cannot be rotated without redeploying every consumer of that code.",
+      "d": "An unencrypted environment variable baked into an image is a static plaintext secret. It bypasses encryption and rotation entirely."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/secretsmanager/latest/userguide/best-practices.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "secrets-manager",
+      "secrets",
+      "kms",
+      "rotation"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-security-groups-primary-nacls-defense-in-depth",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Layering Security Groups and Network ACLs",
+    "difficulty": "intermediate",
+    "type": "multiple-choice",
+    "stem": "How does AWS recommend layering security groups and network ACLs for traffic control inside a VPC?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Use security groups as the primary network access control and rely on network ACLs as a coarser-grained, subnet-level defense in depth."
+      },
+      {
+        "id": "b",
+        "text": "Use network ACLs as the primary access control and treat security groups as optional helpers."
+      },
+      {
+        "id": "c",
+        "text": "Apply identical rules in both security groups and network ACLs so the two controls always agree exactly."
+      },
+      {
+        "id": "d",
+        "text": "Choose either security groups or network ACLs for a given workload because using both at once is discouraged."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AWS positions security groups as the primary network access mechanism in a VPC because they are stateful and applied close to resources. Network ACLs serve as a coarser, subnet-level guardrail that adds defense in depth on top of the security group layer.",
+    "distractorExplanations": {
+      "b": "AWS positions security groups, not network ACLs, as the primary access control in a VPC.",
+      "c": "Mirroring rules across both layers is unnecessary and obscures intent. Each layer is meant to enforce its own appropriate policy at its own scope.",
+      "d": "The two controls are designed to be used together as defense in depth, not as alternatives to one another."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "vpc",
+      "security-groups",
+      "network-acls",
+      "defense-in-depth"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-security-groups-vs-nacls",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Security Groups vs Network ACLs",
+    "difficulty": "intermediate",
+    "type": "multiple-choice",
+    "stem": "Which statement correctly distinguishes how security groups and network ACLs operate inside an Amazon VPC?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Security groups operate at the instance level and are stateful, while network ACLs operate at the subnet level and are stateless."
+      },
+      {
+        "id": "b",
+        "text": "Security groups and network ACLs are interchangeable VPC firewalls, so choosing between them is a matter of preference."
+      },
+      {
+        "id": "c",
+        "text": "Security groups operate at the subnet level and are stateless, while network ACLs operate at the instance level and are stateful."
+      },
+      {
+        "id": "d",
+        "text": "Both security groups and network ACLs operate at the instance level and are stateful."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "Security groups and network ACLs are two distinct VPC traffic controls. Security groups attach to individual instances and are stateful, so traffic permitted in one direction is automatically allowed back. Network ACLs are evaluated at the subnet boundary and are stateless, so each direction must be considered independently.",
+    "distractorExplanations": {
+      "b": "Security groups and network ACLs are not interchangeable. They differ in scope (instance versus subnet) and in behavior (stateful versus stateless), so they are designed to complement each other rather than substitute for one another.",
+      "c": "This option swaps the two services. Security groups operate at the instance level and are stateful; network ACLs operate at the subnet level and are stateless.",
+      "d": "This misstates network ACLs. Network ACLs operate at the subnet level rather than the instance level, and they are stateless rather than stateful."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "vpc",
+      "security-groups",
+      "network-acls",
+      "stateful-vs-stateless"
+    ],
+    "status": "ready"
+  },
+  {
+    "id": "saa-c03-secure-architectures-workload-iam-roles",
+    "cert": "SAA-C03",
+    "domain": "secure-architectures",
+    "topic": "Workload Credentials",
+    "difficulty": "foundational",
+    "type": "multiple-choice",
+    "stem": "An application running on AWS needs to call AWS APIs. Which approach aligns with AWS best practice for granting it access?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Attach an IAM role to the workload so it receives temporary credentials at runtime."
+      },
+      {
+        "id": "b",
+        "text": "Embed an IAM user's access key and secret access key in the application's source code."
+      },
+      {
+        "id": "c",
+        "text": "Configure the application to call AWS APIs using the AWS account root user credentials."
+      },
+      {
+        "id": "d",
+        "text": "Place static long-term access keys in an environment variable on each host that runs the workload."
+      }
+    ],
+    "correctAnswers": [
+      "a"
+    ],
+    "explanation": "AWS best practices direct workloads to use IAM roles, which deliver temporary credentials automatically rather than requiring teams to embed or distribute long-term access keys.",
+    "distractorExplanations": {
+      "b": "Embedding long-term access keys in source code violates AWS guidance and creates a high-impact secret-leakage risk if the source is ever exposed.",
+      "c": "Workloads must never use the root user. The root user is reserved for the small set of tasks that genuinely require it.",
+      "d": "Static long-term keys in environment variables are still long-term credentials and contradict the recommendation to use roles for temporary credentials."
+    },
+    "awsSourceUrls": [
+      "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+    ],
+    "examVersion": "SAA-C03",
+    "tags": [
+      "iam",
+      "iam-roles",
+      "temporary-credentials",
+      "workloads"
+    ],
+    "status": "ready"
+  }
+];
 
 export const conceptCards: ConceptCard[] = [];
 
@@ -18,7 +491,7 @@ export const contentCatalogMeta: Record<Certification, { questions: number; conc
     "conceptCards": 0
   },
   "SAA-C03": {
-    "questions": 0,
+    "questions": 10,
     "conceptCards": 0
   }
 };

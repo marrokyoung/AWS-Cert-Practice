@@ -1,0 +1,28 @@
+{
+  "id": "saa-c03-secure-architectures-workload-iam-roles",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "Workload Credentials",
+  "difficulty": "foundational",
+  "type": "multiple-choice",
+  "stem": "An application running on AWS needs to call AWS APIs. Which approach aligns with AWS best practice for granting it access?",
+  "options": [
+    { "id": "a", "text": "Attach an IAM role to the workload so it receives temporary credentials at runtime." },
+    { "id": "b", "text": "Embed an IAM user's access key and secret access key in the application's source code." },
+    { "id": "c", "text": "Configure the application to call AWS APIs using the AWS account root user credentials." },
+    { "id": "d", "text": "Place static long-term access keys in an environment variable on each host that runs the workload." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "AWS best practices direct workloads to use IAM roles, which deliver temporary credentials automatically rather than requiring teams to embed or distribute long-term access keys.",
+  "distractorExplanations": {
+    "b": "Embedding long-term access keys in source code violates AWS guidance and creates a high-impact secret-leakage risk if the source is ever exposed.",
+    "c": "Workloads must never use the root user. The root user is reserved for the small set of tasks that genuinely require it.",
+    "d": "Static long-term keys in environment variables are still long-term credentials and contradict the recommendation to use roles for temporary credentials."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["iam", "iam-roles", "temporary-credentials", "workloads"],
+  "status": "ready"
+}

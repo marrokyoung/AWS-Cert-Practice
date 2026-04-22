@@ -52,6 +52,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# content build scratch output
+/.tmp-content-build/
+
 # Claude doc files
 CLAUDE.md
 
