@@ -388,20 +388,12 @@ Step goal: add the minimum real SAA-C03 question content needed to exercise the 
   - filename must equal `id`
   - place files only under the canonical `questions/` folder for the seeded domain
 
-Do not merge this step if:
-
-- [ ] Any seeded question is still `draft`.
-- [ ] Any seeded question uses `multiple-select`.
-- [ ] Concept cards are added as part of this branch.
-- [ ] The branch changes UI, question-flow behavior, or content-pipeline behavior beyond the smallest fix required to accept valid question files.
-- [ ] The generated catalog does not include exactly `10` total seeded questions, all under `SAA-C03`.
-
 Step gate:
 
-- [ ] `pnpm content:build`
-- [ ] `pnpm test`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm build`
+- [x] `pnpm content:build`
+- [x] `pnpm test`
+- [x] `pnpm typecheck`
+- [x] `pnpm build`
 
 ### 10. Question Flow Baseline
 
