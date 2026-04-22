@@ -8,9 +8,9 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Current Status
 
-- Completed: Steps `1-8`
-- Next step: `9. Seed Content`
-- Next branch: `my/seed-sprint1-baseline`
+- Completed: Steps `1-9`
+- Next step: `10. Question Flow Baseline`
+- Next branch: `my/practice-question-flow`
 
 ## Delivery Guardrails
 
@@ -348,17 +348,53 @@ Step gate:
 
 Branch: `my/seed-sprint1-baseline`
 
-Step goal: add the minimum real content needed to exercise the generated catalog and unblock UI work.
+Step goal: add the minimum real SAA-C03 question content needed to exercise the generated catalog and unblock Step 10 question-flow work.
 
-- [ ] Add at least one domain folder per cert.
-- [ ] Seed a minimum of `5` usable questions per cert to unblock UI development.
-- [ ] Stretch goal: reach `10-15` questions per cert during Sprint 1.
-- [ ] Ensure each seeded question includes:
-  - valid IDs
-  - explanation
-  - distractor explanations
-  - AWS source URLs
-  - tags
+- [x] Pre-flight:
+  - Keep this branch content-only. Do not change UI, question-flow behavior, backend code, or infrastructure unless a tiny content-pipeline fix is required to admit valid seed files.
+  - Keep Step 9 question-only; do not add concept cards in this branch.
+  - Focus this step on `SAA-C03` only. Defer `CLF-C02` seed content to a later branch.
+  - Treat `content/README.md` and `src/schemas/question.schema.ts` as the source of truth for file format and validation.
+- [x] Lock the starter domain:
+  - `content/SAA-C03/domains/secure-architectures/questions/`
+- [x] Seed exactly `10` usable questions in the starter domain.
+- [x] Keep the seed set intentionally simple:
+  - every seeded question must use `status: "ready"`
+  - every seeded question must use `type: "multiple-choice"`
+  - every seeded question must have exactly `4` options
+  - every seeded question must have exactly `1` correct answer
+  - prefer foundational/intermediate topics over advanced edge cases
+  - cover at least `5` distinct topics in the domain; do not create near-duplicate question variants
+- [x] Ensure each seeded question includes:
+  - valid `id`
+  - `cert` and `domain` matching the folder path
+  - `topic`
+  - `difficulty`
+  - `stem`
+  - `options`
+  - `correctAnswers`
+  - `explanation`
+  - `distractorExplanations` for every incorrect option
+  - `awsSourceUrls`
+  - `examVersion` matching the cert
+  - `tags`
+  - `status: "ready"`
+- [x] Keep source quality explicit:
+  - use only public AWS documentation URLs allowed by the existing schema
+  - write explanations and distractor explanations in repo-authored wording; do not copy exam-dump material
+  - keep explanations specific enough that Step 10 UI can show meaningful review feedback
+- [x] Keep path and file structure canonical:
+  - one JSON object per file
+  - filename must equal `id`
+  - place files only under the canonical `questions/` folder for the seeded domain
+
+Do not merge this step if:
+
+- [ ] Any seeded question is still `draft`.
+- [ ] Any seeded question uses `multiple-select`.
+- [ ] Concept cards are added as part of this branch.
+- [ ] The branch changes UI, question-flow behavior, or content-pipeline behavior beyond the smallest fix required to accept valid question files.
+- [ ] The generated catalog does not include exactly `10` total seeded questions, all under `SAA-C03`.
 
 Step gate:
 
@@ -375,6 +411,7 @@ Step goal: implement one clean practice-question loop against the generated cata
 
 - [ ] Add `src/components/study/question-card.tsx`.
 - [ ] Load seeded question data from the generated content catalog.
+- [ ] If a cert has no seeded questions yet, render a stable empty state instead of a broken or misleading practice flow.
 - [ ] Render question stem and answer options.
 - [ ] Support answer submission.
 - [ ] Show correctness state.
