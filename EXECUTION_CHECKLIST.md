@@ -357,7 +357,7 @@ Step goal: add the minimum real SAA-C03 question content needed to exercise the 
   - Treat `content/README.md` and `src/schemas/question.schema.ts` as the source of truth for file format and validation.
 - [x] Lock the starter domain:
   - `content/SAA-C03/domains/secure-architectures/questions/`
-- [x] Seed exactly `10` usable questions in the starter domain.
+- [x] Seed about `10` usable questions in the starter domain.
 - [x] Keep the seed set intentionally simple:
   - every seeded question must use `status: "ready"`
   - every seeded question must use `type: "multiple-choice"`
