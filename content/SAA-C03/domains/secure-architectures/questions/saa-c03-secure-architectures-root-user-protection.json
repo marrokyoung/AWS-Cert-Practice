@@ -1,0 +1,29 @@
+{
+  "id": "saa-c03-secure-architectures-root-user-protection",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "Root User Protection",
+  "difficulty": "foundational",
+  "type": "multiple-choice",
+  "stem": "Which practice best follows AWS guidance for protecting the AWS account root user?",
+  "options": [
+    { "id": "a", "text": "Enable MFA on the root user, avoid creating long-term access keys for it, and reserve it only for tasks that genuinely require root." },
+    { "id": "b", "text": "Generate a long-term root user access key and embed it in deployment scripts so automation always runs with the highest privileges." },
+    { "id": "c", "text": "Use the root user for routine administrative work because it bypasses normal IAM policy evaluation." },
+    { "id": "d", "text": "Disable MFA on the root user to avoid being locked out if the MFA device is lost." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "The AWS account root user is highly privileged. AWS guidance is to enable MFA on the root user, avoid creating long-term root access keys, and reserve the root user for the small number of tasks that truly require it.",
+  "distractorExplanations": {
+    "b": "Long-term root user access keys should be avoided. Embedding them in deployment scripts widens the blast radius and contradicts AWS guidance to prefer temporary credentials and IAM roles.",
+    "c": "Routine administrative work should be performed by IAM identities or federated principals with least privilege, not by the root user.",
+    "d": "AWS guidance is to enable MFA on the root user, not disable it. Lockout risk is addressed through documented recovery procedures, not by removing MFA."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-best-practices.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["iam", "root-user", "mfa", "best-practices"],
+  "status": "ready"
+}

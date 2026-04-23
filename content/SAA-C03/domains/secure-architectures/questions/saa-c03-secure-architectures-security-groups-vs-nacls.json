@@ -1,0 +1,28 @@
+{
+  "id": "saa-c03-secure-architectures-security-groups-vs-nacls",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "Security Groups vs Network ACLs",
+  "difficulty": "intermediate",
+  "type": "multiple-choice",
+  "stem": "Which statement correctly distinguishes how security groups and network ACLs operate inside an Amazon VPC?",
+  "options": [
+    { "id": "a", "text": "Security groups operate at the instance level and are stateful, while network ACLs operate at the subnet level and are stateless." },
+    { "id": "b", "text": "Security groups and network ACLs are interchangeable VPC firewalls, so choosing between them is a matter of preference." },
+    { "id": "c", "text": "Security groups operate at the subnet level and are stateless, while network ACLs operate at the instance level and are stateful." },
+    { "id": "d", "text": "Both security groups and network ACLs operate at the instance level and are stateful." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "Security groups and network ACLs are two distinct VPC traffic controls. Security groups attach to individual instances and are stateful, so traffic permitted in one direction is automatically allowed back. Network ACLs are evaluated at the subnet boundary and are stateless, so each direction must be considered independently.",
+  "distractorExplanations": {
+    "b": "Security groups and network ACLs are not interchangeable. They differ in scope (instance versus subnet) and in behavior (stateful versus stateless), so they are designed to complement each other rather than substitute for one another.",
+    "c": "This option swaps the two services. Security groups operate at the instance level and are stateful; network ACLs operate at the subnet level and are stateless.",
+    "d": "This misstates network ACLs. Network ACLs operate at the subnet level rather than the instance level, and they are stateless rather than stateful."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/vpc/latest/userguide/infrastructure-security.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["vpc", "security-groups", "network-acls", "stateful-vs-stateless"],
+  "status": "ready"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "saa-c03-secure-architectures-acm-tls-certificates",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "TLS Certificate Management with ACM",
+  "difficulty": "foundational",
+  "type": "multiple-choice",
+  "stem": "Which AWS service is responsible for issuing, storing, and renewing SSL/TLS certificates for use with integrated AWS services?",
+  "options": [
+    { "id": "a", "text": "AWS Certificate Manager (ACM)." },
+    { "id": "b", "text": "AWS Key Management Service (KMS)." },
+    { "id": "c", "text": "AWS Secrets Manager." },
+    { "id": "d", "text": "AWS IAM Identity Center." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "AWS Certificate Manager (ACM) is the service that issues, stores, and renews SSL/TLS certificates for use with integrated AWS services such as load balancers, CloudFront, and API Gateway.",
+  "distractorExplanations": {
+    "b": "KMS manages cryptographic keys for encryption and signing. It does not handle SSL/TLS certificate lifecycle.",
+    "c": "Secrets Manager stores arbitrary application secrets such as database passwords and API keys. It is not the TLS certificate authority service.",
+    "d": "IAM Identity Center centralizes workforce identity and access. It does not issue or renew TLS certificates."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["acm", "tls", "certificates", "encryption-in-transit"],
+  "status": "ready"
+}

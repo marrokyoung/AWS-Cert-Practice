@@ -1,0 +1,28 @@
+{
+  "id": "saa-c03-secure-architectures-cross-account-assume-role",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "Cross-Account Access with AssumeRole",
+  "difficulty": "intermediate",
+  "type": "multiple-choice",
+  "stem": "Principals in Account A need short-lived access to resources in Account B. Which approach matches the AWS STS pattern for cross-account access?",
+  "options": [
+    { "id": "a", "text": "Define a role in Account B whose trust policy allows principals from Account A, and have those principals call AssumeRole to obtain temporary credentials." },
+    { "id": "b", "text": "Create a long-lived IAM user in Account B and share its access key and secret access key with Account A." },
+    { "id": "c", "text": "Use Account B's root user credentials directly from Account A whenever cross-account access is required." },
+    { "id": "d", "text": "Call AssumeRole against a role in Account A and then use those credentials directly against Account B without changing any policy in Account B." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "AssumeRole returns temporary credentials. Cross-account access is established by defining a role in the target account whose trust policy permits the calling account's principals to assume it, after which those principals receive short-lived credentials valid in the target account.",
+  "distractorExplanations": {
+    "b": "Sharing long-term IAM user credentials across accounts contradicts the temporary-credentials recommendation and weakens auditability of who acted in Account B.",
+    "c": "Cross-account access never uses the target account's root user; this also contradicts root user protection guidance.",
+    "d": "Assuming a role in Account A alone does not grant access in Account B. For the AssumeRole pattern in this question, principals from Account A must assume a role defined in Account B whose trust policy permits them."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["sts", "assume-role", "cross-account", "trust-policy"],
+  "status": "ready"
+}

@@ -1,0 +1,29 @@
+{
+  "id": "saa-c03-secure-architectures-s3-block-public-access",
+  "cert": "SAA-C03",
+  "domain": "secure-architectures",
+  "topic": "S3 Block Public Access",
+  "difficulty": "foundational",
+  "type": "multiple-choice",
+  "stem": "A company wants to reduce the risk that its Amazon S3 buckets become publicly accessible through bucket policies or ACLs. Which approach best aligns with AWS guidance?",
+  "options": [
+    { "id": "a", "text": "Enable all four S3 Block Public Access settings at the AWS account level and keep Block Public Access enabled on buckets unless a specific verified use case requires customization." },
+    { "id": "b", "text": "Leave account-level Block Public Access disabled and rely on manually reviewing bucket ACLs and bucket policies on a regular schedule." },
+    { "id": "c", "text": "Configure S3 Block Public Access at the object level so sensitive objects stay private even if the bucket allows public access." },
+    { "id": "d", "text": "Use bucket policies as the only control because S3 Block Public Access applies only when new buckets are created." }
+  ],
+  "correctAnswers": ["a"],
+  "explanation": "AWS recommends turning on all four S3 Block Public Access settings for your account, and also keeping Block Public Access enabled for buckets unless you have a specific and verified need for public access. These settings override bucket policies and ACLs that would otherwise grant public access.",
+  "distractorExplanations": {
+    "b": "Manual review is weaker than the preventive control AWS recommends. S3 Block Public Access is designed to centrally limit public access rather than relying only on periodic audits.",
+    "c": "Amazon S3 does not support Block Public Access on a per-object basis. The settings are managed at the AWS Organizations, account, bucket, or access point level.",
+    "d": "S3 Block Public Access is not limited to bucket creation time. It can be applied to existing buckets and at the account level, where it helps protect current and future buckets."
+  },
+  "awsSourceUrls": [
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html"
+  ],
+  "examVersion": "SAA-C03",
+  "tags": ["s3", "block-public-access", "bucket-policies", "acls"],
+  "status": "ready"
+}
