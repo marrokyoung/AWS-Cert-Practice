@@ -16,7 +16,7 @@
   "explanation": "AWS recommends turning on all four S3 Block Public Access settings for your account, and also keeping Block Public Access enabled for buckets unless you have a specific and verified need for public access. These settings override bucket policies and ACLs that would otherwise grant public access.",
   "distractorExplanations": {
     "b": "Manual review is weaker than the preventive control AWS recommends. S3 Block Public Access is designed to centrally limit public access rather than relying only on periodic audits.",
-    "c": "Amazon S3 does not support Block Public Access on a per-object basis. The settings apply at the organization, account, bucket, or access point level.",
+    "c": "Amazon S3 does not support Block Public Access on a per-object basis. The settings are managed at the AWS Organizations, account, bucket, or access point level.",
     "d": "S3 Block Public Access is not limited to bucket creation time. It can be applied to existing buckets and at the account level, where it helps protect current and future buckets."
   },
   "awsSourceUrls": [
