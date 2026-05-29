@@ -1,10 +1,17 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+
 import {
   CertPageHeader,
   PracticeQuestionFlow,
   StudyCardShell,
 } from "@/components/study";
 import { getQuestionsForCert } from "@/features/content";
-import { CERTIFICATIONS, type Certification } from "@/types/shared";
+import {
+  CERTIFICATIONS,
+  CERT_LABELS,
+  type Certification,
+} from "@/types/shared";
 
 export const dynamicParams = false;
 
@@ -14,6 +21,10 @@ export function generateStaticParams() {
 
 function isCertification(value: string): value is Certification {
   return (CERTIFICATIONS as readonly string[]).includes(value);
+}
+
+function getReadyQuestions(cert: Certification) {
+  return getQuestionsForCert(cert).filter((q) => q.status === "ready");
 }
 
 export default async function PracticePage({
@@ -36,8 +47,9 @@ export default async function PracticePage({
     );
   }
 
-  const readyQuestions = getQuestionsForCert(cert).filter(
-    (q) => q.status === "ready",
+  const readyQuestions = getReadyQuestions(cert);
+  const alternatePracticeCert = CERTIFICATIONS.find(
+    (candidate) => candidate !== cert && getReadyQuestions(candidate).length > 0,
   );
 
   return (
@@ -54,11 +66,20 @@ export default async function PracticePage({
             No questions yet
           </h2>
           <p>
-            Seeded practice content for this certification is not available
-            yet. Check back once questions are added under
-            {" "}
-            <code className="font-mono text-xs">content/{cert}/</code>.
+            Practice questions for {CERT_LABELS[cert]} are not available yet.
+            {alternatePracticeCert
+              ? ` ${CERT_LABELS[alternatePracticeCert]} has practice questions ready now.`
+              : " More practice questions are being prepared."}
           </p>
+          {alternatePracticeCert ? (
+            <Link
+              href={`/${alternatePracticeCert}/practice`}
+              className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              Try {alternatePracticeCert} practice
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+          ) : null}
         </StudyCardShell>
       ) : (
         <PracticeQuestionFlow questions={readyQuestions} />
