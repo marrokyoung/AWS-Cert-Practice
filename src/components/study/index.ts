@@ -7,3 +7,8 @@
 
 export { StudyCardShell } from "./study-card-shell";
 export { CertPageHeader } from "./cert-page-header";
+export { QuestionCard, type QuestionCardProps } from "./question-card";
+export {
+  PracticeQuestionFlow,
+  type PracticeQuestionFlowProps,
+} from "./practice-question-flow";

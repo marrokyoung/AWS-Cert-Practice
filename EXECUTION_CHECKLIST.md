@@ -8,9 +8,9 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Current Status
 
-- Completed: Steps `1-9`
-- Next step: `10. Question Flow Baseline`
-- Next branch: `my/practice-question-flow`
+- Completed: Steps `1-10`
+- Next step: `11. Initial Review And Session Boundaries`
+- Next branch: `my/review-session-boundaries`
 
 ## Delivery Guardrails
 
@@ -397,27 +397,27 @@ Step gate:
 
 ### 10. Question Flow Baseline
 
-Branch: `my/practice-question-flow`
+Branch: `my/add-question-cards`
 
 Step goal: implement one clean practice-question loop against the generated catalog, with persistence routed through an app boundary.
 
-- [ ] Add `src/components/study/question-card.tsx`.
-- [ ] Load seeded question data from the generated content catalog.
-- [ ] If a cert has no seeded questions yet, render a stable empty state instead of a broken or misleading practice flow.
-- [ ] Render question stem and answer options.
-- [ ] Support answer submission.
-- [ ] Show correctness state.
-- [ ] Show explanation and distractor explanations.
-- [ ] Capture confidence selection.
-- [ ] Route question-result persistence through a dedicated app boundary, not directly through UI components.
-- [ ] Ensure missed or low-confidence results can be handed off to Question Retry later.
+- [x] Add `src/components/study/question-card.tsx`.
+- [x] Load seeded question data from the generated content catalog.
+- [x] If a cert has no seeded questions yet, render a stable empty state instead of a broken or misleading practice flow.
+- [x] Render question stem and answer options.
+- [x] Support answer submission.
+- [x] Show correctness state.
+- [x] Show explanation and distractor explanations.
+- [x] Capture confidence selection.
+- [x] Route question-result persistence through a dedicated app boundary, not directly through UI components.
+- [x] Ensure missed or low-confidence results can be handed off to Question Retry later.
 
 Step gate:
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
-- [ ] `pnpm build`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
+- [x] `pnpm build`
 
 ### 11. Initial Review And Session Boundaries
 
