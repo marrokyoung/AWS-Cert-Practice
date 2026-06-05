@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import type { GlobalRouteSegment } from "@/components/shell/navigation";
 import { StudyCardShell } from "@/components/study/study-card-shell";
 import { CERTIFICATIONS, CERT_LABELS } from "@/types/shared";
 
 type CertRoutePickerProps = {
   title: string;
   description: string;
-  segment: "review" | "progress";
+  segment: GlobalRouteSegment;
   actionLabel: string;
 };
 

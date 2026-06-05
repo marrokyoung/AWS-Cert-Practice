@@ -42,5 +42,10 @@ test("hrefForCertSwitch falls back to learn outside app tabs", () => {
 
 test("hrefForGlobalRoute scopes review and progress when a cert is active", () => {
   assert.equal(hrefForGlobalRoute("SAA-C03", "review"), "/SAA-C03/review");
+  assert.equal(hrefForGlobalRoute("SAA-C03", "progress"), "/SAA-C03/progress");
+});
+
+test("hrefForGlobalRoute falls back to top-level paths when no cert is active", () => {
+  assert.equal(hrefForGlobalRoute(null, "review"), "/review");
   assert.equal(hrefForGlobalRoute(null, "progress"), "/progress");
 });
