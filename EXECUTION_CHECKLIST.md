@@ -421,7 +421,7 @@ Step gate:
 
 ### 11. Initial Review And Session Boundaries
 
-Branch: `my/review-session-boundaries`
+Branch: `my/review-basis`
 
 Step goal: define the review/session seams now without prematurely building the full Review experience.
 
