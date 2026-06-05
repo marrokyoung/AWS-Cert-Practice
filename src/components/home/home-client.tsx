@@ -54,6 +54,7 @@ export function HomeClient() {
   const sessionFailed = status === "error";
   const certLabel = CERT_LABELS[selectedCert];
   const learnHref = `/${selectedCert}/learn`;
+  const reviewHref = `/${selectedCert}/review`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -142,7 +143,7 @@ export function HomeClient() {
                   Resume Session
                 </Link>
                 <Link
-                  href="/review"
+                  href={reviewHref}
                   className={buttonVariants({
                     size: "lg",
                     variant: "outline",

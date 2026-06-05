@@ -14,7 +14,7 @@ export function StudyCardShell({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm",
+        "rounded-md border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-6",
         className,
       )}
     >
