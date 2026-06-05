@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CERTIFICATIONS, CERT_LABELS, type Certification } from "@/types/shared";
+import {
+  activeCert,
+  hrefForCertSwitch,
+  hrefForGlobalRoute,
+} from "./navigation";
 
 const CERT_ROUTES = [
   { segment: "learn", label: "Learn", icon: BookOpen },
@@ -21,25 +26,23 @@ const CERT_ROUTES = [
 ] as const;
 
 const GLOBAL_ROUTES = [
-  { href: "/review", label: "Review", icon: RotateCcw },
-  { href: "/progress", label: "Progress", icon: BarChart3 },
+  { segment: "review", label: "Review", icon: RotateCcw },
+  { segment: "progress", label: "Progress", icon: BarChart3 },
 ] as const;
 
-function activeCert(pathname: string): Certification | null {
-  return (
-    CERTIFICATIONS.find(
-      (cert) => pathname.startsWith(`/${cert}/`) || pathname === `/${cert}`,
-    ) ?? null
-  );
-}
-
+/**
+ * App-shell header nav. Derives the active cert from the URL and shows
+ * cert-scoped routes (Learn/Practice/Exam) only when a cert is in the
+ * path. Global routes (Review/Progress) resolve through the active
+ * cert when one exists so the user stays inside that cert.
+ */
 export function AppHeaderClient() {
   const pathname = usePathname();
   const cert = activeCert(pathname);
 
   return (
     <>
-      <CertSelector activeCert={cert} />
+      <CertSelector activeCert={cert} pathname={pathname} />
 
       <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
         {cert &&
@@ -67,12 +70,13 @@ export function AppHeaderClient() {
 
         {cert && <Separator />}
 
-        {GLOBAL_ROUTES.map(({ href, label, icon: Icon }) => {
+        {GLOBAL_ROUTES.map(({ segment, label, icon: Icon }) => {
+          const href = hrefForGlobalRoute(cert, segment);
           const active = pathname === href;
 
           return (
             <Link
-              key={href}
+              key={segment}
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
@@ -96,7 +100,20 @@ function Separator() {
   return <div className="mx-1 h-5 w-px bg-border" aria-hidden />;
 }
 
-function CertSelector({ activeCert }: { activeCert: Certification | null }) {
+/**
+ * Disclosure menu for switching the active cert. Built on the native
+ * `<details>` element for keyboard/AT support; the effect wires up
+ * click-outside and Escape-to-close since `<details>` does not handle
+ * those itself. Each cert link uses `hrefForCertSwitch` so the user
+ * stays on the same conceptual page after switching.
+ */
+function CertSelector({
+  activeCert,
+  pathname,
+}: {
+  activeCert: Certification | null;
+  pathname: string;
+}) {
   const label = activeCert ? CERT_LABELS[activeCert] : "Select Cert";
   const ref = useRef<HTMLDetailsElement>(null);
 
@@ -143,7 +160,7 @@ function CertSelector({ activeCert }: { activeCert: Certification | null }) {
         {CERTIFICATIONS.map((cert) => (
           <Link
             key={cert}
-            href={`/${cert}/learn`}
+            href={hrefForCertSwitch(pathname, cert)}
             role="menuitem"
             className={cn(
               "block rounded-md px-3 py-2 text-sm transition-colors",

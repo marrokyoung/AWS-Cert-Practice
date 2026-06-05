@@ -1,12 +1,12 @@
+import { CertRoutePicker } from "@/components/study/cert-route-picker";
+
 export default function ProgressPage() {
   return (
-    <div>
-      <h1 className="font-heading text-2xl font-semibold tracking-tight">
-        Progress
-      </h1>
-      <p className="mt-2 text-muted-foreground">
-        Study progress dashboard coming soon.
-      </p>
-    </div>
+    <CertRoutePicker
+      title="Progress"
+      description="Choose a certification to view its progress dashboard."
+      segment="progress"
+      actionLabel="Open progress"
+    />
   );
 }
