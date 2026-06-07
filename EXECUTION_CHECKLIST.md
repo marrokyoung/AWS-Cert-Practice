@@ -8,9 +8,9 @@ See [DESIGN.md](./DESIGN.md) for architecture and constraints.
 
 ## Current Status
 
-- Completed: Steps `1-10`
-- Next step: `11. Initial Review And Session Boundaries`
-- Next branch: `my/review-session-boundaries`
+- Completed: Steps `1-11`
+- Next step: `Sprint 1 acceptance validation`
+- Next branch: `my/review-basis`
 
 ## Delivery Guardrails
 
@@ -425,20 +425,20 @@ Branch: `my/review-basis`
 
 Step goal: define the review/session seams now without prematurely building the full Review experience.
 
-- [ ] Create file/module placeholders for:
+- [x] Create file/module placeholders for:
   - `flashcard-scheduler.ts`
   - `question-retry.ts`
   - `learn-session.ts`
   - `practice-session.ts`
   - `progress-tracker.ts`
-- [ ] Do not fully implement Review yet, but define the interfaces now.
-- [ ] Keep Flashcard Review and Question Retry separate even if one is only a stub in Sprint 1.
+- [x] Do not fully implement Review yet, but define the interfaces now.
+- [x] Keep Flashcard Review and Question Retry separate even if one is only a stub in Sprint 1.
 
 Step gate:
 
-- [ ] `pnpm lint`
-- [ ] `pnpm typecheck`
-- [ ] `pnpm test`
+- [x] `pnpm lint`
+- [x] `pnpm typecheck`
+- [x] `pnpm test`
 
 ## Acceptance Criteria
 
