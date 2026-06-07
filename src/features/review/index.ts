@@ -16,3 +16,11 @@ export {
   type CreateInitialFlashcardItemInput,
   type ScheduleFlashcardInput,
 } from "./flashcard-scheduler";
+
+export {
+  clearRetry,
+  enqueueRetry,
+  getDueRetries,
+  type ClearRetryInput,
+  type EnqueueRetryInput,
+} from "./question-retry";
