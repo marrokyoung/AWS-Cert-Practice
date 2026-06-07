@@ -57,7 +57,10 @@ export function clearRetry(input: ClearRetryInput): QuestionRetryItem[] {
 /**
  * Apply a practice result to the retry queue.
  *
- * - A high-confidence correct on a queued item clears it.
+ * - A high-confidence correct on a queued item clears it AND updates
+ *   `lastAttemptResult` / `lastConfidence` / `lastReviewedAt` /
+ *   `cert` / `domain` from the result so the cleared row reflects the
+ *   final correct attempt instead of the prior miss.
  * - A non-candidate (e.g. high-confidence correct) on a question not
  *   already queued is a no-op.
  * - Anything else enqueues a new row or bumps the existing one with a
@@ -75,11 +78,18 @@ export function enqueueRetry(input: EnqueueRetryInput): QuestionRetryItem[] {
     result.result === "correct" &&
     result.confidence === "high"
   ) {
-    return clearRetry({
-      existing,
-      questionId: result.questionId,
-      now: resolvedNow,
-    });
+    const cleared: QuestionRetryItem = {
+      ...existingItem,
+      cert: result.cert,
+      domain: result.domain,
+      status: "cleared",
+      lastAttemptResult: result.result,
+      lastConfidence: result.confidence,
+      lastReviewedAt: result.answeredAt ?? resolvedNow,
+    };
+    return existing.map((item) =>
+      item.questionId === result.questionId ? cleared : item,
+    );
   }
 
   if (!existingItem && !result.retryCandidate) {
@@ -111,15 +121,20 @@ export function enqueueRetry(input: EnqueueRetryInput): QuestionRetryItem[] {
 
 /**
  * Return non-cleared items whose `dueAt` has elapsed, sorted ascending.
- * Uses lexicographic ISO-8601 comparison (UTC `Z` throughout).
+ * Compares parsed epoch ms so different ISO-8601 renderings of the same
+ * instant are treated as equal.
  */
 export function getDueRetries(
   items: readonly QuestionRetryItem[],
   now?: string,
 ): QuestionRetryItem[] {
   const resolvedNow = now ?? new Date().toISOString();
+  const parsedNow = Date.parse(resolvedNow);
   return items
-    .filter((item) => item.status !== "cleared" && item.dueAt <= resolvedNow)
+    .filter(
+      (item) =>
+        item.status !== "cleared" && Date.parse(item.dueAt) <= parsedNow,
+    )
     .slice()
-    .sort((a, b) => (a.dueAt < b.dueAt ? -1 : a.dueAt > b.dueAt ? 1 : 0));
+    .sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt));
 }

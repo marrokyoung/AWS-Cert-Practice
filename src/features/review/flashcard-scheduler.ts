@@ -107,20 +107,20 @@ export function scheduleNextReview(
 /**
  * Return the subset of items currently due, sorted by `dueAt` ascending.
  *
- * Uses lexicographic string comparison on ISO-8601 timestamps. This is
- * only correct when every `dueAt` is expressed in the same zone — the
- * app standardizes on UTC `Z` suffixes (produced by `toISOString`) so the
- * ordering is well-defined.
+ * Compares timestamps as parsed epoch ms so callers may pass any valid
+ * ISO-8601 representation (`2026-06-06T00:00:00Z` and
+ * `2026-06-06T00:00:00.000Z` are treated as the same instant).
  */
 export function getDueFlashcards(
   items: readonly FlashcardReviewItem[],
   now?: string,
 ): FlashcardReviewItem[] {
   const resolvedNow = now ?? new Date().toISOString();
+  const parsedNow = Date.parse(resolvedNow);
   return items
-    .filter((item) => item.dueAt <= resolvedNow)
+    .filter((item) => Date.parse(item.dueAt) <= parsedNow)
     .slice()
-    .sort((a, b) => (a.dueAt < b.dueAt ? -1 : a.dueAt > b.dueAt ? 1 : 0));
+    .sort((a, b) => Date.parse(a.dueAt) - Date.parse(b.dueAt));
 }
 
 /**

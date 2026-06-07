@@ -112,10 +112,13 @@ export function summarizeCertProgress(
 
   const domainSet = new Set<Domain>(domains);
   let lastStudiedAt: string | undefined;
+  let lastStudiedAtMs = Number.NEGATIVE_INFINITY;
   for (const r of results) {
     if (r.cert !== cert) continue;
     if (!domainSet.has(r.domain)) continue;
-    if (lastStudiedAt === undefined || r.answeredAt > lastStudiedAt) {
+    const ms = Date.parse(r.answeredAt);
+    if (ms > lastStudiedAtMs) {
+      lastStudiedAtMs = ms;
       lastStudiedAt = r.answeredAt;
     }
   }

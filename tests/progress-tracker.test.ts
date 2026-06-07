@@ -216,6 +216,24 @@ test("summarizeCertProgress: omits lastStudiedAt when no qualifying result exist
   assert.equal(Object.prototype.hasOwnProperty.call(summary, "lastStudiedAt"), false);
 });
 
+test("summarizeCertProgress: lastStudiedAt uses chronological (not lexical) ordering across ISO formats", () => {
+  // Lexically "2026-06-06T00:00:00Z" > "2026-06-06T00:00:00.001Z" (no-ms beats ms in string sort),
+  // but chronologically the .001Z value is later by 1 ms.
+  const results = [
+    makeResult({ questionId: "earlier", answeredAt: "2026-06-06T00:00:00Z" }),
+    makeResult({ questionId: "later", answeredAt: "2026-06-06T00:00:00.001Z" }),
+  ];
+  const summary = summarizeCertProgress({
+    cert: "SAA-C03",
+    domains: ["secure-architectures"],
+    results,
+    flashcards: [],
+    retries: [],
+    now: NOW,
+  });
+  assert.equal(summary.lastStudiedAt, "2026-06-06T00:00:00.001Z");
+});
+
 test("summarizeCertProgress: lastStudiedAt ignores results whose domain is not in the list", () => {
   const results = [
     makeResult({

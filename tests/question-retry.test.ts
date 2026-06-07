@@ -94,10 +94,45 @@ test("enqueueRetry: high-confidence correct on a queued item clears it (preserve
   const out = enqueueRetry({ existing, result, now: NOW });
   assert.equal(out.length, 1);
   assert.equal(out[0].status, "cleared");
+  // lastReviewedAt comes from result.answeredAt (== NOW in this fixture).
   assert.equal(out[0].lastReviewedAt, NOW);
-  // Other fields preserved from existing.
+  // Scheduler fields preserved from the existing row.
   assert.equal(out[0].intervalDays, 1);
   assert.equal(out[0].retryCount, 1);
+});
+
+test("enqueueRetry: high-confidence correct clear overwrites stale attempt metadata", () => {
+  const existing = [
+    makeItem({
+      lastAttemptResult: "incorrect",
+      lastConfidence: "low",
+      lastReviewedAt: EARLIER,
+    }),
+  ];
+  const result = makeResult({
+    result: "correct",
+    confidence: "high",
+    retryCandidate: false,
+    answeredAt: NOW,
+  });
+  const out = enqueueRetry({ existing, result, now: LATER });
+  assert.equal(out.length, 1);
+  assert.equal(out[0].status, "cleared");
+  assert.equal(out[0].lastAttemptResult, "correct");
+  assert.equal(out[0].lastConfidence, "high");
+  assert.equal(out[0].lastReviewedAt, NOW);
+});
+
+test("enqueueRetry: clear path falls back to resolvedNow when result.answeredAt is missing", () => {
+  const existing = [makeItem()];
+  const result = makeResult({
+    result: "correct",
+    confidence: "high",
+    retryCandidate: false,
+    answeredAt: undefined as unknown as string,
+  });
+  const out = enqueueRetry({ existing, result, now: LATER });
+  assert.equal(out[0].lastReviewedAt, LATER);
 });
 
 test("enqueueRetry: low-confidence correct on a queued item keeps it queued and bumps", () => {
@@ -166,6 +201,15 @@ test("getDueRetries: excludes cleared items", () => {
   const due = getDueRetries(items, NOW);
   assert.equal(due.length, 1);
   assert.equal(due[0].questionId, "q1");
+});
+
+test("getDueRetries: equal instants with different ISO formats compare equal", () => {
+  const items = [
+    makeItem({ questionId: "no-ms", dueAt: "2026-06-06T00:00:00Z" }),
+    makeItem({ questionId: "with-ms", dueAt: "2026-06-06T00:00:00.000Z" }),
+  ];
+  const due = getDueRetries(items, NOW);
+  assert.equal(due.length, 2);
 });
 
 test("getDueRetries: excludes future-due items and sorts ascending", () => {

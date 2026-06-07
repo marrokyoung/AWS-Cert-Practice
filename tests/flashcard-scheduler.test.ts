@@ -206,6 +206,14 @@ test("getDueFlashcards: items due exactly at now are included", () => {
   assert.equal(getDueFlashcards(items, NOW).length, 1);
 });
 
+test("getDueFlashcards: equal instants with different ISO formats compare equal", () => {
+  const items: FlashcardReviewItem[] = [
+    makeItem({ cardId: "no-ms", dueAt: "2026-06-06T00:00:00Z" }),
+    makeItem({ cardId: "with-ms", dueAt: "2026-06-06T00:00:00.000Z" }),
+  ];
+  assert.equal(getDueFlashcards(items, NOW).length, 2);
+});
+
 test("scheduleNextReview: review + good keeps state at review (no demotion)", () => {
   const states: FlashcardState[] = ["new", "learning", "review", "lapsed"];
   for (const state of states) {
