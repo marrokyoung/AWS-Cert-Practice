@@ -39,7 +39,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <footer className="border-t border-border py-4 text-center text-xs text-muted-foreground">
-        AWS Cert Practice &mdash; Open Source
+        Open Source AWS Cert Practice
       </footer>
     </div>
   );

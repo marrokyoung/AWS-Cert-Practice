@@ -38,13 +38,7 @@ export default async function PracticePage({
     // dynamicParams = false + generateStaticParams returns only valid
     // certs, so this is unreachable in practice. Render a neutral header
     // instead of throwing to keep the static build healthy if it ever is.
-    return (
-      <CertPageHeader
-        cert={cert}
-        title="Practice"
-        description="Unknown certification."
-      />
-    );
+    return <CertPageHeader description="Unknown certification." />;
   }
 
   const readyQuestions = getReadyQuestions(cert);
@@ -52,38 +46,30 @@ export default async function PracticePage({
     (candidate) => candidate !== cert && getReadyQuestions(candidate).length > 0,
   );
 
-  return (
-    <div className="space-y-6">
-      <CertPageHeader
-        cert={cert}
-        title="Practice"
-        description="Answer one question at a time, see explanations, and flag low-confidence answers for later retry."
-      />
+  if (readyQuestions.length === 0) {
+    return (
+      <StudyCardShell className="space-y-2 text-sm text-muted-foreground">
+        <h2 className="font-heading text-base font-semibold text-foreground">
+          No questions yet
+        </h2>
+        <p>
+          Practice questions for {CERT_LABELS[cert]} are not available yet.
+          {alternatePracticeCert
+            ? ` ${CERT_LABELS[alternatePracticeCert]} has practice questions ready now.`
+            : " More practice questions are being prepared."}
+        </p>
+        {alternatePracticeCert ? (
+          <Link
+            href={`/${alternatePracticeCert}/practice`}
+            className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            Try {alternatePracticeCert} practice
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Link>
+        ) : null}
+      </StudyCardShell>
+    );
+  }
 
-      {readyQuestions.length === 0 ? (
-        <StudyCardShell className="space-y-2 text-sm text-muted-foreground">
-          <h2 className="font-heading text-base font-semibold text-foreground">
-            No questions yet
-          </h2>
-          <p>
-            Practice questions for {CERT_LABELS[cert]} are not available yet.
-            {alternatePracticeCert
-              ? ` ${CERT_LABELS[alternatePracticeCert]} has practice questions ready now.`
-              : " More practice questions are being prepared."}
-          </p>
-          {alternatePracticeCert ? (
-            <Link
-              href={`/${alternatePracticeCert}/practice`}
-              className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-            >
-              Try {alternatePracticeCert} practice
-              <ArrowRight aria-hidden="true" className="size-4" />
-            </Link>
-          ) : null}
-        </StudyCardShell>
-      ) : (
-        <PracticeQuestionFlow questions={readyQuestions} />
-      )}
-    </div>
-  );
+  return <PracticeQuestionFlow questions={readyQuestions} />;
 }

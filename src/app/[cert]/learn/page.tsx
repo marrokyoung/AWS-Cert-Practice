@@ -7,18 +7,8 @@ export function generateStaticParams() {
   return CERTIFICATIONS.map((cert) => ({ cert }));
 }
 
-export default async function LearnPage({
-  params,
-}: {
-  params: Promise<{ cert: string }>;
-}) {
-  const { cert } = await params;
-
+export default async function LearnPage() {
   return (
-    <CertPageHeader
-      cert={cert}
-      title="Learn"
-      description="Guided concept cards and topic walkthroughs coming soon."
-    />
+    <CertPageHeader description="Guided concept cards and topic walkthroughs coming soon." />
   );
 }
