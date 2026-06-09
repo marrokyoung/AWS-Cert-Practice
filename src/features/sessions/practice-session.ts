@@ -35,6 +35,18 @@ export interface PracticeSessionSummary {
   retryCandidates: number;
 }
 
+function assertPracticeSessionScope(
+  state: PracticeSessionState,
+  result: PracticeQuestionResult,
+): void {
+  if (
+    result.cert !== state.cert ||
+    (state.domain !== null && result.domain !== state.domain)
+  ) {
+    throw new Error("mismatched session scope");
+  }
+}
+
 /**
  * Start a fresh Practice session. `domain` is optional — omitting it
  * represents an "any domain" practice run for the chosen cert.
@@ -62,6 +74,8 @@ export function recordResult(
   state: PracticeSessionState,
   result: PracticeQuestionResult,
 ): PracticeSessionState {
+  assertPracticeSessionScope(state, result);
+
   const idx = state.results.findIndex((r) => r.questionId === result.questionId);
   const nextResults =
     idx === -1

@@ -76,6 +76,38 @@ test("recordResult: does not mutate the input state", () => {
   assert.equal(start.currentQuestionId, null);
 });
 
+test("recordResult: rejects results from a different cert", () => {
+  const start = createPracticeSession({ cert: "SAA-C03", now: NOW });
+  assert.throws(
+    () => recordResult(start, makeResult({ cert: "CLF-C02" })),
+    /mismatched session scope/,
+  );
+  assert.equal(start.results.length, 0);
+});
+
+test("recordResult: rejects results from a different domain in a domain-scoped session", () => {
+  const start = createPracticeSession({
+    cert: "SAA-C03",
+    domain: "secure-architectures",
+    now: NOW,
+  });
+  assert.throws(
+    () => recordResult(start, makeResult({ domain: "resilient-architectures" })),
+    /mismatched session scope/,
+  );
+  assert.equal(start.results.length, 0);
+});
+
+test("recordResult: accepts any matching-cert domain when session domain is null", () => {
+  const start = createPracticeSession({ cert: "SAA-C03", now: NOW });
+  const next = recordResult(
+    start,
+    makeResult({ domain: "resilient-architectures" }),
+  );
+  assert.equal(next.results.length, 1);
+  assert.equal(next.results[0].domain, "resilient-architectures");
+});
+
 test("selectNextQuestion: returns the first unanswered id preserving order", () => {
   const start = createPracticeSession({ cert: "SAA-C03", now: NOW });
   const next = recordResult(start, makeResult({ questionId: "q1" }));
