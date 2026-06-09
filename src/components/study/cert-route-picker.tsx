@@ -6,7 +6,6 @@ import { StudyCardShell } from "@/components/study/study-card-shell";
 import { CERTIFICATIONS, CERT_LABELS } from "@/types/shared";
 
 type CertRoutePickerProps = {
-  title: string;
   description: string;
   segment: GlobalRouteSegment;
   actionLabel: string;
@@ -19,19 +18,15 @@ type CertRoutePickerProps = {
  * cert choice explicit before landing on the real page.
  */
 export function CertRoutePicker({
-  title,
   description,
   segment,
   actionLabel,
 }: CertRoutePickerProps) {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          {title}
-        </h1>
-        <p className="mt-2 text-muted-foreground">{description}</p>
-      </div>
+      <h1 className="font-heading text-2xl font-semibold tracking-tight">
+        {description}
+      </h1>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {CERTIFICATIONS.map((cert) => (
