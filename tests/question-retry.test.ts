@@ -177,6 +177,20 @@ test("enqueueRetry: existing row for a different question is untouched", () => {
   assert.equal(other.intervalDays, 5);
 });
 
+test("enqueueRetry: cleared history row is not treated as an active retry", () => {
+  const existing = [makeItem({ questionId: "q1", status: "cleared" })];
+  const result = makeResult({
+    questionId: "q1",
+    result: "correct",
+    confidence: "high",
+    retryCandidate: false,
+  });
+  const out = enqueueRetry({ existing, result, now: NOW });
+  assert.equal(out.length, 1);
+  assert.equal(out[0].questionId, "q1");
+  assert.equal(out[0].status, "cleared");
+});
+
 test("clearRetry: marks the matching item cleared without removing the row", () => {
   const existing = [makeItem(), makeItem({ questionId: "q-other" })];
   const out = clearRetry({ existing, questionId: "q1", now: NOW });

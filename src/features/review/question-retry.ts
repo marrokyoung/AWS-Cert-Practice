@@ -34,6 +34,13 @@ function addDaysIso(iso: string, days: number): string {
   return new Date(Date.parse(iso) + days * MS_PER_DAY).toISOString();
 }
 
+function isQueuedRetryForQuestion(
+  item: QuestionRetryItem,
+  questionId: string,
+): boolean {
+  return item.questionId === questionId && item.status === "queued";
+}
+
 /**
  * Mark a queued item as cleared while preserving the row so the progress
  * tracker can still see the history. Returns `existing` unchanged when
@@ -43,7 +50,7 @@ export function clearRetry(input: ClearRetryInput): QuestionRetryItem[] {
   const resolvedNow = input.now ?? new Date().toISOString();
   let touched = false;
   const next = input.existing.map((item) => {
-    if (item.questionId !== input.questionId) return item;
+    if (!isQueuedRetryForQuestion(item, input.questionId)) return item;
     touched = true;
     return {
       ...item,
@@ -70,7 +77,7 @@ export function enqueueRetry(input: EnqueueRetryInput): QuestionRetryItem[] {
   const { existing, result } = input;
   const resolvedNow = input.now ?? new Date().toISOString();
   const existingItem = existing.find(
-    (item) => item.questionId === result.questionId,
+    (item) => isQueuedRetryForQuestion(item, result.questionId),
   );
 
   if (
@@ -88,7 +95,7 @@ export function enqueueRetry(input: EnqueueRetryInput): QuestionRetryItem[] {
       lastReviewedAt: result.answeredAt ?? resolvedNow,
     };
     return existing.map((item) =>
-      item.questionId === result.questionId ? cleared : item,
+      isQueuedRetryForQuestion(item, result.questionId) ? cleared : item,
     );
   }
 
@@ -115,7 +122,7 @@ export function enqueueRetry(input: EnqueueRetryInput): QuestionRetryItem[] {
     return [...existing, updated];
   }
   return existing.map((item) =>
-    item.questionId === result.questionId ? updated : item,
+    isQueuedRetryForQuestion(item, result.questionId) ? updated : item,
   );
 }
 
