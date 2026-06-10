@@ -177,3 +177,37 @@
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  .app-surface-bg {
+    background:
+      radial-gradient(
+        circle at 1px 1px,
+        color-mix(in oklch, var(--primary) 16%, transparent) 1px,
+        transparent 1.5px
+      )
+      0 0 / 30px 30px,
+      linear-gradient(
+        180deg,
+        color-mix(in oklch, var(--accent) 38%, var(--background)) 0%,
+        var(--background) 22rem,
+        var(--background) 100%
+      );
+  }
+
+  .dark .app-surface-bg {
+    background:
+      radial-gradient(
+        circle at 1px 1px,
+        color-mix(in oklch, var(--primary) 20%, transparent) 1px,
+        transparent 1.5px
+      )
+      0 0 / 30px 30px,
+      linear-gradient(
+        180deg,
+        color-mix(in oklch, var(--accent) 30%, var(--background)) 0%,
+        var(--background) 22rem,
+        var(--background) 100%
+      );
+  }
+}

@@ -44,7 +44,7 @@ export function AppHeaderClient() {
     <>
       <CertSelector activeCert={cert} pathname={pathname} />
 
-      <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
+      <nav className="flex min-w-0 flex-1 items-center justify-center gap-1 overflow-x-auto px-1">
         {cert &&
           CERT_ROUTES.map(({ segment, label, icon: Icon }) => {
             const href = `/${cert}/${segment}`;
@@ -56,10 +56,10 @@ export function AppHeaderClient() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   active
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                    ? "bg-primary/10 text-primary shadow-sm"
+                    : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
                 )}
               >
                 <Icon className="size-4" />
@@ -80,10 +80,10 @@ export function AppHeaderClient() {
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                  ? "bg-primary/10 text-primary shadow-sm"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
               )}
             >
               <Icon className="size-4" />
@@ -97,7 +97,7 @@ export function AppHeaderClient() {
 }
 
 function Separator() {
-  return <div className="mx-1 h-5 w-px bg-border" aria-hidden />;
+  return <div className="mx-1 hidden h-5 w-px bg-border sm:block" aria-hidden />;
 }
 
 /**
@@ -147,7 +147,7 @@ function CertSelector({
     <details ref={ref} className="group relative shrink-0">
       <summary
         aria-haspopup="menu"
-        className="flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors select-none list-none hover:bg-accent/50 hover:text-foreground [&::-webkit-details-marker]:hidden"
+        className="flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md border border-border/70 bg-card/80 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors select-none list-none hover:bg-accent/60 hover:text-foreground [&::-webkit-details-marker]:hidden"
       >
         {label}
         <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" />
@@ -155,7 +155,7 @@ function CertSelector({
       <div
         role="menu"
         aria-label="Certification options"
-        className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-popover p-1 shadow-md"
+        className="absolute left-0 top-full z-50 mt-1 min-w-[220px] rounded-md border border-border bg-popover p-1 shadow-md"
       >
         {CERTIFICATIONS.map((cert) => (
           <Link
@@ -165,8 +165,8 @@ function CertSelector({
             className={cn(
               "block rounded-md px-3 py-2 text-sm transition-colors",
               cert === activeCert
-                ? "bg-accent font-medium text-accent-foreground"
-                : "text-popover-foreground hover:bg-accent/50",
+                ? "bg-primary/10 font-medium text-primary"
+                : "text-popover-foreground hover:bg-accent/60",
             )}
             onClick={(e) => {
               const details = e.currentTarget.closest("details");
@@ -176,7 +176,8 @@ function CertSelector({
             <span className="font-mono text-xs text-muted-foreground">
               {cert}
             </span>{" "}
-            &mdash; {CERT_LABELS[cert]}
+            {" - "}
+            {CERT_LABELS[cert]}
           </Link>
         ))}
       </div>
