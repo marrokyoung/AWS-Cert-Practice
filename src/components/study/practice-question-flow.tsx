@@ -4,6 +4,7 @@ import { useMemo, useReducer } from "react";
 
 import { QuestionCard } from "@/components/study/question-card";
 import { StudyCardShell } from "@/components/study/study-card-shell";
+import { Mascot } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import {
   buildPracticeQuestionResult,
@@ -210,17 +211,22 @@ export function PracticeQuestionFlow({ questions }: PracticeQuestionFlowProps) {
       </div>
 
       {state.finished ? (
-        <StudyCardShell className="space-y-4 text-center">
+        <StudyCardShell className="flex flex-col items-center gap-4 text-center">
+          <Mascot
+            pose="hello"
+            label="A friendly cloud study companion celebrating"
+            className="h-32 w-48"
+          />
           <h2 className="font-heading text-xl font-semibold">
-            Session complete
+            Practice session complete
           </h2>
           <p className="text-sm text-muted-foreground">
             You answered {stats.answered} of {totalQuestions} questions.
             {" "}
             {stats.correct} correct.
             {stats.retryCandidates > 0
-              ? ` ${stats.retryCandidates} flagged for retry.`
-              : ""}
+              ? ` ${stats.retryCandidates} should get another look.`
+              : " Nothing needs a retry right now."}
           </p>
           <div className="flex justify-center">
             <Button
@@ -228,7 +234,7 @@ export function PracticeQuestionFlow({ questions }: PracticeQuestionFlowProps) {
               variant="outline"
               onClick={() => window.location.reload()}
             >
-              Start a new session
+              Start New Session
             </Button>
           </div>
         </StudyCardShell>
