@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowRight,
   CheckCircle2,
   Circle,
   ExternalLink,
@@ -92,9 +91,11 @@ export function QuestionCard({
         <h2 className="font-heading text-xl font-semibold leading-snug">
           {question.stem}
         </h2>
-        <p className="inline-flex rounded-md border border-primary/20 bg-primary/5 px-2 py-1 text-xs font-medium text-primary">
-          {isMultiSelect ? "Select all that apply" : "Single select"}
-        </p>
+        {isMultiSelect ? (
+          <p className="text-xs text-muted-foreground">
+            Select all that apply.
+          </p>
+        ) : null}
       </div>
 
       <fieldset
@@ -184,12 +185,12 @@ export function QuestionCard({
             ) : (
               <XCircle aria-hidden="true" className="size-4" />
             )}
-            <span>{evaluation.isCorrect ? "Great job" : "Not quite"}</span>
+            <span>{evaluation.isCorrect ? "Correct" : "Incorrect"}</span>
           </div>
 
           <div className="space-y-2 text-sm leading-relaxed">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {evaluation.isCorrect ? "Why this works" : "What to review"}
+              Explanation
             </p>
             <p>{question.explanation}</p>
           </div>
@@ -256,7 +257,7 @@ export function QuestionCard({
 
           <fieldset className="space-y-2">
             <legend className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              How confident did that feel?
+              How confident were you?
             </legend>
             <div className="inline-flex rounded-lg border border-border bg-background p-1">
               {CONFIDENCE_OPTIONS.map((opt) => {
@@ -297,8 +298,7 @@ export function QuestionCard({
             disabled={!canSubmit}
             aria-disabled={!canSubmit}
           >
-            Check Answer
-            <ArrowRight aria-hidden="true" className="size-4" />
+            Submit answer
           </Button>
         ) : (
           <Button
@@ -307,8 +307,7 @@ export function QuestionCard({
             disabled={!canAdvance}
             aria-disabled={!canAdvance}
           >
-            {isLastQuestion ? "Finish Session" : "Next Question"}
-            <ArrowRight aria-hidden="true" className="size-4" />
+            {isLastQuestion ? "Finish session" : "Next question"}
           </Button>
         )}
       </div>

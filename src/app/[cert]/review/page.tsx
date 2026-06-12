@@ -1,11 +1,5 @@
-import { ArrowRight, CalendarDays, RotateCcw, StickyNote } from "lucide-react";
-
-import { CertPageHeader, FriendlyEmptyState } from "@/components/study";
-import {
-  CERTIFICATIONS,
-  CERT_LABELS,
-  type Certification,
-} from "@/types/shared";
+import { FriendlyEmptyState } from "@/components/study";
+import { CERTIFICATIONS, type Certification } from "@/types/shared";
 
 export const dynamicParams = false;
 
@@ -27,53 +21,17 @@ export default async function ReviewPage({
   if (!isCertification(cert)) {
     return (
       <FriendlyEmptyState
-        title="Review queue unavailable"
-        description="This certification route is not available in the current catalog."
+        message="This page is unavailable."
         mascotPose="rest"
       />
     );
   }
 
   return (
-    <div className="space-y-6">
-      <CertPageHeader
-        eyebrow={cert}
-        title="Review"
-        description={`Flashcards and question retries for ${CERT_LABELS[cert]} will gather here as you study.`}
-        stats={[
-          {
-            label: "Cards to review",
-            value: "0",
-            icon: StickyNote,
-            tone: "blue",
-          },
-          {
-            label: "Questions to retry",
-            value: "0",
-            icon: RotateCcw,
-            tone: "rust",
-          },
-          {
-            label: "Review streak",
-            value: "0",
-            icon: CalendarDays,
-            tone: "amber",
-          },
-        ]}
-      />
-
-      <FriendlyEmptyState
-        eyebrow="All caught up"
-        title="Nothing to review yet"
-        description="You are all caught up. After a few practice questions or concept cards, this page will help you revisit the items that need another look."
-        mascotPose="review"
-        mascotLabel="A cloud study companion holding a review card"
-        primaryAction={{
-          href: `/${cert}/practice`,
-          label: "Go to Practice",
-          icon: ArrowRight,
-        }}
-      />
-    </div>
+    <FriendlyEmptyState
+      message="This page is still under construction."
+      mascotPose="review"
+      mascotLabel="A cloud study companion holding a review card"
+    />
   );
 }

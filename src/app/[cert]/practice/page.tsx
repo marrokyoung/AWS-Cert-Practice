@@ -1,16 +1,6 @@
-import { ArrowRight, ClipboardList, Layers, Target } from "lucide-react";
-
-import {
-  CertPageHeader,
-  FriendlyEmptyState,
-  PracticeQuestionFlow,
-} from "@/components/study";
+import { FriendlyEmptyState, PracticeQuestionFlow } from "@/components/study";
 import { getQuestionsForCert } from "@/features/content";
-import {
-  CERTIFICATIONS,
-  CERT_LABELS,
-  type Certification,
-} from "@/types/shared";
+import { CERTIFICATIONS, type Certification } from "@/types/shared";
 
 export const dynamicParams = false;
 
@@ -35,103 +25,27 @@ export default async function PracticePage({
 
   if (!isCertification(cert)) {
     // dynamicParams = false + generateStaticParams returns only valid
-    // certs, so this is unreachable in practice. Render a neutral header
+    // certs, so this is unreachable in practice. Render a stable fallback
     // instead of throwing to keep the static build healthy if it ever is.
     return (
       <FriendlyEmptyState
-        title="Practice route unavailable"
-        description="This certification route is not available in the current catalog."
+        message="This page is unavailable."
         mascotPose="rest"
       />
     );
   }
 
   const readyQuestions = getReadyQuestions(cert);
-  const readyDomains = new Set(readyQuestions.map((q) => q.domain)).size;
-  const alternatePracticeCert = CERTIFICATIONS.find(
-    (candidate) => candidate !== cert && getReadyQuestions(candidate).length > 0,
-  );
 
   if (readyQuestions.length === 0) {
     return (
-      <div className="space-y-6">
-        <CertPageHeader
-          eyebrow={cert}
-          title="Practice"
-          description={`Focused question drilling for ${CERT_LABELS[cert]} will appear here as soon as ready questions are available.`}
-          stats={[
-            {
-              label: "Ready questions",
-              value: "0",
-              icon: ClipboardList,
-              tone: "blue",
-            },
-            {
-              label: "Covered domains",
-              value: "0",
-              icon: Layers,
-              tone: "green",
-            },
-            {
-              label: "Retry candidates",
-              value: "0",
-              icon: Target,
-              tone: "rust",
-            },
-          ]}
-        />
-        <FriendlyEmptyState
-          eyebrow="Practice queue"
-          title="No questions yet"
-          description={
-            alternatePracticeCert
-              ? `${CERT_LABELS[alternatePracticeCert]} has practice questions ready now.`
-              : "More practice questions are being prepared."
-          }
-          mascotPose="study"
-          mascotLabel="A cloud study companion reading"
-          primaryAction={
-            alternatePracticeCert
-              ? {
-                  href: `/${alternatePracticeCert}/practice`,
-                  label: `Try ${alternatePracticeCert} Practice`,
-                  icon: ArrowRight,
-                }
-              : undefined
-          }
-        />
-      </div>
+      <FriendlyEmptyState
+        message="Practice questions are still under construction."
+        mascotPose="study"
+        mascotLabel="A cloud study companion reading"
+      />
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <CertPageHeader
-        eyebrow={cert}
-        title="Practice"
-        description={`Focused question drilling for ${CERT_LABELS[cert]} with instant feedback and confidence tracking.`}
-        stats={[
-          {
-            label: "Ready questions",
-            value: String(readyQuestions.length),
-            icon: ClipboardList,
-            tone: "blue",
-          },
-          {
-            label: "Covered domains",
-            value: String(readyDomains),
-            icon: Layers,
-            tone: "green",
-          },
-          {
-            label: "Retry candidates",
-            value: "0",
-            icon: Target,
-            tone: "rust",
-          },
-        ]}
-      />
-      <PracticeQuestionFlow questions={readyQuestions} />
-    </div>
-  );
+  return <PracticeQuestionFlow questions={readyQuestions} />;
 }
